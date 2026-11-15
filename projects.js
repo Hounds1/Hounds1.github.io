@@ -11,9 +11,9 @@
   const artTypes = { '01': 'rtls', '02': 'evacuation', '03': 'call', '04': 'assets' };
   const personalArtTypes = { '19': 'flowit', '20': 'bullseye' };
   const projectOrder = [
-    ...projects.filter(project => project.category === 'personal'),
-    ...projects.filter(project => project.category === 'engineering'),
     ...projects.filter(project => artTypes[project.id]),
+    ...projects.filter(project => project.category === 'engineering'),
+    ...projects.filter(project => project.category === 'personal'),
     ...projects.filter(project => !artTypes[project.id] && !['personal', 'engineering'].includes(project.category))
   ];
   let opener;
@@ -94,7 +94,7 @@
     document.getElementById('engineering-section').hidden = !engineering.length;
     document.getElementById('personal-section').hidden = !personal.length;
     document.getElementById('entry-count').textContent = projects.length;
-    document.getElementById('filter-status').textContent = [personal.length ? `${personal.length} personal` : '', featured.length + archive.length ? `${featured.length + archive.length} projects` : '', engineering.length ? `${engineering.length} engineering` : ''].filter(Boolean).join(' · ');
+    document.getElementById('filter-status').textContent = [featured.length + archive.length ? `${featured.length + archive.length} projects` : '', engineering.length ? `${engineering.length} engineering` : '', personal.length ? `${personal.length} personal` : ''].filter(Boolean).join(' · ');
     document.querySelectorAll('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === filter)));
     fx?.animate(document.querySelectorAll('.project-card'), { opacity: [.3, 1], y: [12, 0] }, { duration: .35, delay: index => Math.min(index * .035, .18) });
     clearCardMotion = window.bindProjectCardMotion?.(document.querySelectorAll('.project-card'), fx) || (() => {});

@@ -59,7 +59,7 @@
 .archive-card .card-tags { color: #7f95ac; font-size: 10px; }
 .archive-period { color: #8d9aac; font-size: 11px; font-variant-numeric: tabular-nums; }
 .archive-mark { font-size: 23px; color: #a8bbd2; }
-#engineering-section { margin-bottom: 30px; }
+#featured-section, #engineering-section { margin-bottom: 30px; }
 #personal-section { margin-bottom: 45px; }
 .personal-card .card-topline span:first-child { color: #c4dedb; }
 .engineering-card .card-surface { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 40px; padding: 35px; background: #dce6e2; border-color: #e4ece9; color: #20362f; }
