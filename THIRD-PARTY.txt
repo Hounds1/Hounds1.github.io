@@ -1,0 +1,103 @@
+THIRD-PARTY COMPONENTS AND ASSET SOURCES
+======================================
+
+This portfolio serves the following components and icons from local files.
+asset-sources.json records the exact download URLs, package versions, and
+downloaded byte counts. Keep that manifest and the license files below with
+redistributed copies of the portfolio.
+
+particles.js 2.0.0
+------------------
+File: vendor/particles.min.js
+Project: https://github.com/VincentGarreau/particles.js
+Demo: https://vincentgarreau.com/particles.js/
+Source: https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js
+License: MIT; Copyright (c) 2015, Vincent Garreau.
+Full license: vendor/particles-LICENSE.txt
+Use: The interactive particle canvas in the hero.
+
+Motion 14.14.0
+--------------
+File: vendor/motion.js
+Project and documentation: https://motion.dev/
+Source: https://cdn.jsdelivr.net/npm/motion@14.14.0/dist/motion.js
+License: MIT; Copyright (c) 2024 Motion B.V.
+Full license: vendor/motion-LICENSE.txt
+Use: The official browser UMD bundle exposes window.Motion. The portfolio
+uses animate, inView, stagger, and hover for section entrances, technology
+items, and project selection. Motion+ paid example source is not bundled.
+
+Devicon 2.18.0
+--------------
+Files in assets/icons/: docker.svg, java.svg, mariadb.svg, maven.svg,
+nginx.svg, redis.svg, rockylinux.svg, spring.svg, ubuntu.svg.
+Project: https://github.com/devicons/devicon
+Source template:
+https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/{name}/{name}-original.svg
+License: MIT; Copyright (c) 2015 konpa.
+Full license: assets/icons/devicon-LICENSE.txt
+The product names and logos identify the technologies used. Product
+trademarks remain the property of their respective owners. Their appearance
+does not imply sponsorship or endorsement of this portfolio.
+
+Lucide Static 1.73.0
+--------------------
+Files in assets/icons/:
+- ssh.svg: terminal.svg, a general terminal/SSH symbol.
+- ssl.svg: lock-keyhole.svg, a general transport-security symbol.
+- ncp.svg: cloud.svg, a general cloud symbol, not the NAVER Cloud logo.
+Project: https://lucide.dev/
+Source template:
+https://cdn.jsdelivr.net/npm/lucide-static@1.73.0/icons/{icon}.svg
+License: ISC; Copyright (c) 2026 Lucide Icons and Contributors.
+The package also retains the MIT license for icons derived from Feather,
+Copyright (c) 2013-present Cole Bemis. The terminal icon is in that list.
+Full license, including both notices: assets/icons/lucide-LICENSE.txt
+
+HAProxy logo
+------------
+File: assets/icons/haproxy.png
+Official source: https://www.haproxy.org/img/logo-med.png
+Official project: https://www.haproxy.org/
+Used to identify HAProxy in the technology list. No ownership or general
+open-source license for this logo is claimed by this portfolio.
+
+MyBatis logo
+------------
+File: assets/icons/mybatis.png
+Official source: https://mybatis.org/images/mybatis-logo.png
+Official project: https://mybatis.org/
+Used to identify MyBatis in the technology list. The MyBatis name and logo
+remain the property of their respective owners. No general open-source
+license for this logo is claimed by this portfolio.
+
+Additional official product assets
+----------------------------------
+Any additional product-logo files are documented individually in
+asset-sources.json with their official source URLs. A software project's
+license is not automatically asserted to license its trademarks or logos.
+Original brand marks remain the property of their respective owners.
+
+Implementation notes
+--------------------
+The font choices are inherited from the existing portfolio. Technology
+descriptions, project diagrams, and layout code belong to this portfolio;
+third-party library and icon licenses are limited to the files identified
+above and in asset-sources.json.
+
+Motion card interaction references
+----------------------------------
+The portfolio's card presentation and shared card/detail transition adapt
+these publicly accessible examples to vanilla JavaScript and native dialog:
+https://motion.dev/examples/vue-animate-view-app-store
+https://motion.dev/examples/js-shared-view-animation
+https://motion.dev/examples/js-gestures
+The underlying Motion library license is listed above. No Motion+ source
+was accessed or bundled. The portfolio retains its own content and imagery.
+
+Generated project cover images
+------------------------------
+assets/images/project-01.png through project-17.png were generated using
+the built-in image_gen tool for this portfolio. They are project-themed
+concept images, not photographs documenting the actual clients' sites.
+Generation prompts and original output records are kept in local working files and are not published.

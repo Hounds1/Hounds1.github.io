@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101216">
+  <meta name="description" content="백엔드 개발자 Hounds의 산업 현장 서비스 개발 및 개선 사례입니다.">
+  <title>Hounds — 백엔드 개발 포트폴리오</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='7' fill='%23101216'/%3E%3Cpath d='M24 10l14 14-14 14-14-14z' fill='%23b7cbe8'/%3E%3C/svg%3E">
+  <link rel="preload" href="pretendard.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script src="vendor/particles.min.js" defer></script>
+  <script src="vendor/motion.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+  <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+  <header class="site-header page-width">
+    <a class="wordmark" href="#top">Hounds<span class="wordmark-dot" aria-hidden="true">.</span></a>
+    <nav aria-label="주요 메뉴">
+      <a href="#experience">경력</a>
+      <a href="#stack">기술 스택</a>
+      <a href="projects.html">프로젝트</a>
+    </nav>
+    <button class="motion-toggle header-motion" type="button" id="motion-toggle" aria-pressed="false"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">움직임 줄이기</span></button>
+  </header>
+
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-particles" id="hero-particles" aria-hidden="true"></div>
+      <div class="hero-inner page-width">
+        <div class="hero-copy">
+          <p class="hero-role">Hounds · Backend Developer</p>
+          <h1 id="hero-title"><span>Backend</span><span>Developer<span class="hero-period">.</span></span></h1>
+          <p class="hero-description">현장의 신호를 서비스의 흐름으로 연결합니다.<br>안전 관제부터 호출·출입, 실물 자산 관리까지.</p>
+          <a class="hero-link" href="#experience"><span>경력부터 살펴보기</span><span class="round-arrow" aria-hidden="true">↘</span></a>
+        </div>
+        <div class="hero-bottom">
+          <p>대피·SOS <span>/</span> 현장 호출 <span>/</span> 실물 자산 관리</p>
+          <a href="projects.html">프로젝트 둘러보기 <span aria-hidden="true">↗</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="experience page-width" id="experience" aria-labelledby="experience-title">
+      <div>
+        <div class="experience-header">
+          <div>
+            <p class="section-kicker">경력 · 산업 현장 서비스</p>
+            <h2 id="experience-title">Experience<span>.</span></h2>
+          </div>
+          <div class="employment">
+            <span class="employment-label">재직 기간</span>
+            <div class="employment-period">
+              <time datetime="2023-09-18">2023.09.18</time>
+              <span>—</span>
+              <time datetime="2026-11-20">2026.11.20</time>
+            </div>
+            <p class="employment-role">백엔드 개발 · 산업 현장 서비스</p>
+          </div>
+        </div>
+        <div class="experience-body">
+          <div class="experience-intro"><h3>현장마다 다른 요구.<br>함께 쓰는 백엔드.</h3><p>대피와 SOS, 인력 호출, 출입·자산 관리 서비스를 개발했습니다. 여러 현장에 반복되는 설정과 통신, 초기화는 공통 기능으로 정리했습니다.</p><a class="experience-detail-link" href="projects.html#project-18">공통 백엔드 설계 자세히 보기 <span aria-hidden="true">↗</span></a></div>
+          <div class="experience-list">
+            <article class="career-entry"><h3>운영 중에도 바뀌는 설정</h3><p>실행 시점의 설정 조회, 기존 값 보존과 변경 버전 관리를 공통화했습니다. 비밀값은 암호화하고 손상 데이터는 오류로 구분했습니다.</p></article>
+            <article class="career-entry"><h3>반복되는 데이터·통신 처리</h3><p>데이터 변환과 외부 통신을 공통 도구로 묶었습니다. 잘못된 요청, 서버 오류, 연결 실패를 구분하고 원인을 추적할 기록을 보강했습니다.</p></article>
+            <article class="career-entry"><h3>현장 간 조회·화면 설정</h3><p>회사 정보 조회, 알림 후속 조치와 화면 액션 설정을 공통 영역으로 옮겼습니다. 누락 정보와 표시 순서를 함께 정리했습니다.</p></article>
+            <article class="career-entry"><h3>초기화 경합과 실패 대응</h3><p>Redis 잠금으로 여러 서버의 중복 초기화를 제어했습니다. 중간 실패 시 DB 변경을 되돌리고, 환경에 맞춰 백그라운드 작업을 시작하도록 했습니다.</p></article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stack" id="stack" aria-labelledby="stack-title">
+      <div class="page-width">
+        <div class="section-heading"><h2 id="stack-title">Tech stack<span>.</span></h2><p>개발과 운영에 사용하는 기술</p></div>
+        <div class="stack-groups">
+          <section class="stack-group" aria-labelledby="stack-backend">
+            <div class="stack-group-copy"><h3 id="stack-backend">Backend</h3><p>현장 서비스의 업무 로직과 공통 기능 개발</p></div>
+            <ul class="tech-items">
+              <li class="tech-item" tabindex="0" aria-label="Java">
+                <span class="tech-icon"><img src="assets/icons/java.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Java</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Spring">
+                <span class="tech-icon"><img src="assets/icons/spring.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Spring</span>
+              </li>
+            </ul>
+          </section>
+          <section class="stack-group" aria-labelledby="stack-database">
+            <div class="stack-group-copy"><h3 id="stack-database">Database</h3><p>MyBatis · JPA · MariaDB · Redis.<br>데이터 접근과 저장·조회, 캐시와 잠금 처리.</p></div>
+            <ul class="tech-items">
+              <li class="tech-item" tabindex="0" aria-label="MyBatis">
+                <span class="tech-icon"><img src="assets/icons/mybatis.png" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">MyBatis</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="JPA">
+                <span class="tech-icon tech-icon-jpa" aria-hidden="true">JPA</span><span class="tech-name">JPA</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="MariaDB">
+                <span class="tech-icon"><img src="assets/icons/mariadb.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">MariaDB</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Redis">
+                <span class="tech-icon"><img src="assets/icons/redis.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Redis</span>
+              </li>
+            </ul>
+          </section>
+          <section class="stack-group" aria-labelledby="stack-infra">
+            <div class="stack-group-copy"><h3 id="stack-infra">Infra</h3></div>
+            <ul class="tech-items">
+              <li class="tech-item" tabindex="0" aria-label="Nginx">
+                <span class="tech-icon"><img src="assets/icons/nginx.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Nginx</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="HAProxy">
+                <span class="tech-icon"><img src="assets/icons/haproxy.png" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">HAProxy</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Rocky Linux">
+                <span class="tech-icon"><img src="assets/icons/rockylinux.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Rocky Linux</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Ubuntu">
+                <span class="tech-icon"><img src="assets/icons/ubuntu.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Ubuntu</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Docker">
+                <span class="tech-icon"><img src="assets/icons/docker.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Docker</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="Naver Cloud Platform">
+                <span class="tech-icon"><img src="assets/icons/ncp.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">NCP</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="SSH">
+                <span class="tech-icon"><img src="assets/icons/ssh.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">SSH</span>
+              </li>
+              <li class="tech-item" tabindex="0" aria-label="SSL">
+                <span class="tech-icon"><img src="assets/icons/ssl.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">SSL</span>
+              </li>
+            </ul>
+          </section>
+          <section class="stack-group" aria-labelledby="stack-build">
+            <div class="stack-group-copy"><h3 id="stack-build">Build</h3><p>프로젝트 빌드와 의존성 관리</p></div>
+            <ul class="tech-items">
+              <li class="tech-item" tabindex="0" aria-label="Maven">
+                <span class="tech-icon"><img src="assets/icons/maven.svg" width="48" height="48" alt="" loading="lazy"></span>
+                <span class="tech-name">Maven</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="projects-cta page-width" aria-labelledby="projects-cta-title">
+      <p class="section-kicker">프로젝트 기록</p>
+      <a href="projects.html" class="projects-cta-link"><h2 id="projects-cta-title">작업의 맥락까지.<br><span>Explore my work.</span></h2><span class="cta-arrow" aria-hidden="true">↗</span></a>
+      <p>17개 현장 프로젝트와 공통 백엔드 설계에 담긴 문제 해결 과정을 살펴보세요.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer page-width">
+    <span>Hounds · 백엔드 개발</span>
+    <a href="#top">맨 위로 <span aria-hidden="true">↑</span></a>
+  </footer>
+</body>
+</html>

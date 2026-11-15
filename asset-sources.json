@@ -1,0 +1,109 @@
+{
+  "versions": {
+    "motion": "14.14.0",
+    "devicon": "2.18.0",
+    "lucide-static": "1.73.0"
+  },
+  "assets": [
+    {
+      "file": "assets/icons/devicon-LICENSE.txt",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/LICENSE",
+      "bytes": 1072
+    },
+    {
+      "file": "assets/icons/docker.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/docker/docker-original.svg",
+      "bytes": 4452
+    },
+    {
+      "file": "assets/icons/haproxy.png",
+      "source": "https://www.haproxy.org/img/logo-med.png",
+      "bytes": 3522
+    },
+    {
+      "file": "assets/icons/java.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/java/java-original.svg",
+      "bytes": 1540
+    },
+    {
+      "file": "assets/icons/lucide-LICENSE.txt",
+      "source": "https://cdn.jsdelivr.net/npm/lucide-static@1.73.0/LICENSE",
+      "bytes": 3208
+    },
+    {
+      "file": "assets/icons/mariadb.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/mariadb/mariadb-original.svg",
+      "bytes": 1831
+    },
+    {
+      "file": "assets/icons/maven.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/maven/maven-original.svg",
+      "bytes": 21634
+    },
+    {
+      "file": "assets/icons/mybatis.png",
+      "source": "https://mybatis.org/images/mybatis-logo.png",
+      "bytes": 25080
+    },
+    {
+      "file": "assets/icons/ncp.svg",
+      "source": "https://cdn.jsdelivr.net/npm/lucide-static@1.73.0/icons/cloud.svg",
+      "bytes": 351
+    },
+    {
+      "file": "assets/icons/nginx.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/nginx/nginx-original.svg",
+      "bytes": 1094
+    },
+    {
+      "file": "assets/icons/redis.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/redis/redis-original.svg",
+      "bytes": 1728
+    },
+    {
+      "file": "assets/icons/rockylinux.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/rockylinux/rockylinux-original.svg",
+      "bytes": 500
+    },
+    {
+      "file": "assets/icons/spring.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/spring/spring-original.svg",
+      "bytes": 943
+    },
+    {
+      "file": "assets/icons/ssh.svg",
+      "source": "https://cdn.jsdelivr.net/npm/lucide-static@1.73.0/icons/terminal.svg",
+      "bytes": 340
+    },
+    {
+      "file": "assets/icons/ssl.svg",
+      "source": "https://cdn.jsdelivr.net/npm/lucide-static@1.73.0/icons/lock-keyhole.svg",
+      "bytes": 420
+    },
+    {
+      "file": "assets/icons/ubuntu.svg",
+      "source": "https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/ubuntu/ubuntu-original.svg",
+      "bytes": 1187
+    },
+    {
+      "file": "vendor/motion-LICENSE.txt",
+      "source": "https://cdn.jsdelivr.net/npm/motion@14.14.0/LICENSE.md",
+      "bytes": 1100
+    },
+    {
+      "file": "vendor/motion.js",
+      "source": "https://cdn.jsdelivr.net/npm/motion@14.14.0/dist/motion.js",
+      "bytes": 191561
+    },
+    {
+      "file": "vendor/particles-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/VincentGarreau/particles.js/master/LICENSE.md",
+      "bytes": 1083
+    },
+    {
+      "file": "vendor/particles.min.js",
+      "source": "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js",
+      "bytes": 23016
+    }
+  ]
+}

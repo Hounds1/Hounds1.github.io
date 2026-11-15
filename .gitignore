@@ -1,0 +1,28 @@
+# Private experience notes: never publish the original source document.
+프로젝트_경험_전체정리.md
+*경험*정리*.md
+
+# Local authoring sources and generation records.
+image-prompts*.json
+project-copy.json
+project-details.json
+common-backend-data.json
+build-project-data.py
+fetch-assets.py
+prepare-github-pages.py
+project-art.js
+project-art.css
+
+# Local tooling, credentials and editor files.
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+.codex/
+.agents/
+__pycache__/
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
