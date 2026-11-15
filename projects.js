@@ -23,6 +23,7 @@
   let clearCardMotion = () => {};
   let clearSimulation = () => {};
   let clearLogDemo = () => {};
+  let clearStateDemo = () => {};
   let transitioning = false;
   let activeTransition;
   let pendingClose = null;
@@ -197,6 +198,7 @@
             <div><dt>개발·개선</dt><dd>${escape(project.period)}</dd></div>
             <div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>
           </dl>
+          ${detail.planned?.length ? `<p class="modal-planned"><span>예정</span>${detail.planned.map(escape).join(' · ')}</p>` : ''}
           ${detail.stack?.length ? `<ul class="modal-stack" aria-label="사용 기술">${detail.stack.map(tech => `<li>${escape(tech)}</li>`).join('')}</ul>` : ''}
           ${sourceLinks(detail.links, 'modal-source-links', '프로젝트 저장소와 작업 기록')}
         </div>
@@ -215,7 +217,7 @@
           return `
           <article class="case-study${sources ? ' has-sources' : ''}">
             <header class="case-heading"><span class="case-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4></header>
-            ${caseDiagram(item.diagram)}
+            ${window.portfolioStateDemo?.render(project.id, index) || caseDiagram(item.diagram)}
             <dl class="case-flow">
               <div class="case-problem"><dt>문제</dt><dd>${escape(item.problem)}</dd></div>
               <div class="case-action"><dt>해결</dt><dd>${escape(item.action)}</dd></div>
@@ -247,6 +249,7 @@
       stopDiagramMotion();
       clearSimulation();
       clearLogDemo();
+      clearStateDemo();
       content.innerHTML = projectDetail(project, next);
       document.body.style.overflow = 'hidden';
       if (!wasOpen) dialog.showModal();
@@ -254,6 +257,7 @@
       document.getElementById('dialog-title').focus({ preventScroll: true });
       clearSimulation = window.portfolioSimulations?.mount(content, project.id) || (() => {});
       clearLogDemo = window.portfolioLogDemo?.mount(content, project.id) || (() => {});
+      clearStateDemo = window.portfolioStateDemo?.mount(content, project.id) || (() => {});
       watchDiagramMotion();
       if (updateHistory) {
         if (wasOpen) history.replaceState(history.state, '', `#project-${id}`);
@@ -315,6 +319,8 @@
     clearSimulation = () => {};
     clearLogDemo();
     clearLogDemo = () => {};
+    clearStateDemo();
+    clearStateDemo = () => {};
     selectedId = null;
     document.body.style.overflow = previousBodyOverflow;
     if (opener?.isConnected) opener.focus({ preventScroll: true });

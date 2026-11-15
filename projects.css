@@ -112,6 +112,8 @@
 .modal-facts > div { display: grid; grid-template-columns: 65px 1fr; gap: 12px; }
 .modal-facts dt { color: #93a3b6; }
 .modal-facts dd { margin: 0; color: #ccd6e1; font-variant-numeric: tabular-nums; }
+.modal-planned { display: flex; flex-wrap: wrap; align-items: baseline; gap: 9px; margin-top: 13px; color: #b5c9c1; font-size: 12px; line-height: 1.7; }
+.modal-planned > span { padding: 1px 7px; border: 1px solid #a7c8b93d; border-radius: 4px; color: #c5ddcf; font-size: 10px; }
 .modal-stack { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; margin: 20px 0 0; padding: 0; }
 .modal-stack li { padding: 5px 9px; border: 1px solid #a7c0d126; border-radius: 5px; color: #cad9e3; font-size: 10px; line-height: 1.4; background: #b2d4e607; }
 .modal-source-links, .case-sources { display: flex; flex-wrap: wrap; gap: 10px 19px; }
