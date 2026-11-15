@@ -1,0 +1,33 @@
+button.tech-item { width: 100%; border: 0; background: transparent; color: inherit; cursor: pointer; }
+.stack-tech { min-width: 0; }
+.tech-icon { position: relative; }
+.tech-case-indicator { position: absolute; right: -5px; bottom: -5px; display: grid; place-items: center; width: 20px; height: 20px; border: 1px solid #c4ccc7; border-radius: 50%; background: #e9ebe7; color: #536b67; font-size: 12px; }
+.tech-item[aria-expanded="true"] .tech-icon { background: #fff; border-color: #537c72; box-shadow: 0 0 0 3px #537c721b; }
+.tech-item[aria-expanded="true"] .tech-case-indicator { background: #365c53; color: #f1f4ed; border-color: #365c53; }
+.stack-case-panel { position: relative; grid-column: 1 / -1; display: grid; grid-template-columns: .65fr 1.35fr; gap: 38px; padding: 30px 34px; margin-top: 3px; border-radius: 9px; background: #1c292d; color: #e9eee7; color-scheme: dark; }
+.stack-case-intro { min-width: 0; padding-right: 8px; }
+.stack-case-kicker { color: #91b4a7; font-size: 11px; }
+.stack-case-intro h4 { margin-top: 10px; font-size: 28px; font-weight: 540; letter-spacing: -.035em; }
+.stack-case-summary { margin-top: 13px; color: #b9c8c5; font-size: 14px; line-height: 1.85; }
+.stack-case-links { display: grid; gap: 0; list-style: none; padding: 0; margin: 0; min-width: 0; }
+.stack-case-links li + li { border-top: 1px solid #435350; margin-top: 18px; padding-top: 18px; }
+.stack-case-links a { display: block; }
+.stack-case-project { color: #98b2ab; font-size: 11px; }
+.stack-case-links strong { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin-top: 7px; font-size: 17px; font-weight: 540; line-height: 1.5; }
+.stack-case-links strong > span { color: #a9cec0; }
+.stack-case-links p { margin-top: 7px; color: #bac7c6; font-size: 13px; line-height: 1.8; }
+.stack-case-links a:hover strong { color: #b9decd; }
+.stack-case-panel :focus-visible { outline-color: #b9decd; }
+.stack-case-close { position: absolute; top: 8px; right: 8px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: #abbfb9; font-size: 13px; cursor: pointer; }
+.stack-case-close:hover { background: #ffffff12; color: #fff; }
+@media (max-width: 800px) {
+  .stack-case-panel { grid-template-columns: 1fr; gap: 22px; padding: 25px; }
+  .stack-case-intro { padding-right: 15px; }
+  .stack-case-intro h4 { font-size: 25px; }
+}
+@media (max-width: 540px) {
+  .tech-items > .stack-tech { flex-basis: calc(25% - 1px); }
+  .stack-case-panel { padding: 23px 20px; }
+  .stack-case-summary { font-size: 13px; }
+  .stack-case-links strong { font-size: 16px; }
+}

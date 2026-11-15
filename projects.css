@@ -89,10 +89,19 @@
 
 .project-dialog { color-scheme: dark; background: #15191f; color: var(--text); width: min(1080px, calc(100% - 80px)); max-height: calc(100dvh - 70px); border: 1px solid #424a55; border-radius: 12px; padding: 0; overscroll-behavior: contain; box-shadow: 0 35px 150px #0009; }
 .project-dialog::backdrop { background: #05070bd4; backdrop-filter: blur(9px); }
-.modal-toolbar { position: sticky; top: 0; z-index: 3; display: flex; justify-content: space-between; align-items: center; min-height: 54px; padding: 8px 30px; background: #15191ff5; border-bottom: 1px solid #313844; backdrop-filter: blur(8px); }
+.modal-toolbar { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: center; min-height: 54px; padding: 8px 30px; background: #15191ff5; border-bottom: 1px solid #313844; backdrop-filter: blur(8px); }
 .modal-toolbar > span { font-size: 10px; letter-spacing: .16em; color: #91a2ba; }
 .modal-toolbar button { display: flex; gap: 12px; align-items: center; color: #d7dce4; background: none; border: 0; cursor: pointer; padding: 8px 0 8px 15px; font-size: 13px; }
 .modal-toolbar button span { font-size: 19px; }
+.modal-toolbar-actions { display: flex; align-items: center; gap: 12px; }
+.modal-toolbar #copy-project-link { justify-content: center; min-width: 94px; padding: 7px 10px; border: 1px solid #405063; border-radius: 5px; color: #bdcedf; font-size: 11px; }
+.modal-toolbar #copy-project-link:hover:not([aria-disabled="true"]) { color: #edf4fc; border-color: #8297af; }
+.modal-toolbar #copy-project-link[aria-disabled="true"] { cursor: wait; color: #8599ae; }
+.modal-link-fallback { grid-column: 1 / -1; display: grid; gap: 7px; min-width: 0; padding: 11px 0 8px; }
+.modal-link-fallback label { color: #b7cadf; font-size: 11px; }
+.modal-link-fallback input { min-width: 0; width: 100%; padding: 9px 11px; border: 1px solid #587087; border-radius: 5px; background: #101821; color: #e0eaf3; font: 12px/1.5 ui-monospace, "SFMono-Regular", Consolas, monospace; }
+.modal-link-fallback p { color: #a2b4c7; font-size: 11px; line-height: 1.6; word-break: keep-all; }
+.modal-share-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .modal-content { padding: 0 44px 35px; }
 .modal-cover { display: grid; grid-template-columns: 1.35fr 1fr; align-items: stretch; gap: 32px; margin-inline: -44px; padding: 32px 44px; background: #1c252e; border-bottom: 1px solid #ffffff0c; }
 .project-dialog[data-art="rtls"] .modal-cover { background: #192c35; }
@@ -273,6 +282,10 @@ html.motion-reduced .flow-packet { animation: none !important; }
   .modal-content { padding-inline: 20px; }
   .modal-cover { margin-inline: -20px; padding-inline: 20px; }
   .modal-toolbar { padding-inline: 20px; min-height: 60px; }
+  .modal-toolbar > span { font-size: 9px; letter-spacing: .1em; }
+  .modal-toolbar-actions { gap: 5px; }
+  .modal-toolbar #copy-project-link { min-width: 86px; padding-inline: 8px; font-size: 10px; }
+  .modal-toolbar #close-dialog { gap: 8px; padding-left: 8px; font-size: 12px; }
   .modal-title { font-size: 29px; }
   .modal-lead { font-size: 17px; }
   .modal-facts { margin-top: 20px; }

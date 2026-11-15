@@ -3,6 +3,10 @@
   const fx = window.portfolioMotion;
   const dialog = document.getElementById('project-dialog');
   const content = document.getElementById('dialog-content');
+  const copyLinkButton = document.getElementById('copy-project-link');
+  const linkFallback = document.getElementById('project-link-fallback');
+  const linkInput = document.getElementById('project-link-input');
+  const shareStatus = document.getElementById('project-share-status');
   const featuredGrid = document.getElementById('featured-grid');
   const archiveGrid = document.getElementById('archive-grid');
   const engineeringGrid = document.getElementById('engineering-grid');
@@ -18,6 +22,8 @@
   ];
   let opener;
   let selectedId;
+  let shareRequestId = 0;
+  let copyingLink = false;
   let closing = false;
   let previousBodyOverflow = '';
   let clearCardMotion = () => {};
@@ -32,6 +38,59 @@
   let diagrams = [];
   const visibleDiagrams = new Set();
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+  function resetShare() {
+    // Invalidate pending clipboard promises before a modal closes or changes project.
+    shareRequestId += 1;
+    copyingLink = false;
+    copyLinkButton.textContent = '사례 링크 복사';
+    copyLinkButton.setAttribute('aria-disabled', 'false');
+    copyLinkButton.removeAttribute('aria-busy');
+    linkFallback.hidden = true;
+    linkInput.value = '';
+    shareStatus.textContent = '';
+  }
+
+  async function copyProjectLink() {
+    if (!dialog.open || !selectedId || closing || transitioning || copyingLink) return;
+    const projectId = selectedId;
+    const requestId = ++shareRequestId;
+    const url = new URL(location.href);
+    url.username = '';
+    url.password = '';
+    url.search = '';
+    url.hash = `project-${projectId}`;
+    const link = url.href;
+    const isCurrent = () => requestId === shareRequestId && selectedId === projectId && dialog.open && !closing;
+    copyingLink = true;
+    copyLinkButton.textContent = '복사 중';
+    copyLinkButton.setAttribute('aria-disabled', 'true');
+    copyLinkButton.setAttribute('aria-busy', 'true');
+    linkFallback.hidden = true;
+    linkInput.value = '';
+    shareStatus.textContent = '';
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+      await navigator.clipboard.writeText(link);
+      if (!isCurrent()) return;
+      copyLinkButton.textContent = '복사됨';
+      shareStatus.textContent = '현재 사례의 링크를 복사했습니다.';
+    } catch (_) {
+      if (!isCurrent()) return;
+      copyLinkButton.textContent = '다시 복사';
+      linkInput.value = link;
+      linkFallback.hidden = false;
+      shareStatus.textContent = '자동 복사를 사용할 수 없어 직접 복사할 주소를 표시했습니다.';
+      linkInput.focus({ preventScroll: true });
+      linkInput.select();
+    } finally {
+      if (isCurrent()) {
+        copyingLink = false;
+        copyLinkButton.setAttribute('aria-disabled', 'false');
+        copyLinkButton.removeAttribute('aria-busy');
+      }
+    }
+  }
 
   function sourceLinks(links, className, label) {
     const items = (links || []).flatMap(link => {
@@ -244,6 +303,7 @@
     }
     const useMorph = !wasOpen && updateHistory && source && canMorph();
     const update = () => {
+      resetShare();
       selectedId = id;
       dialog.dataset.art = project.category === 'engineering' ? 'engineering' : personalArtTypes[id] || artTypes[id] || 'archive';
       stopDiagramMotion();
@@ -278,6 +338,7 @@
     if (!dialog.open || closing) return;
     if (transitioning) { pendingClose = updateHistory; pendingLocationSync = false; return; }
     closing = true;
+    resetShare();
     const closingHash = location.hash;
     const source = document.querySelector(`[data-project="${selectedId}"]`);
     const rect = source?.getBoundingClientRect();
@@ -307,6 +368,7 @@
     if (next) showProject(next.dataset.next);
   });
   document.getElementById('close-dialog').addEventListener('click', () => closeDialog());
+  copyLinkButton.addEventListener('click', copyProjectLink);
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeDialog(); });
   dialog.addEventListener('click', event => {
     if (event.target !== dialog) return;
@@ -314,6 +376,7 @@
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeDialog();
   });
   dialog.addEventListener('close', () => {
+    resetShare();
     stopDiagramMotion();
     clearSimulation();
     clearSimulation = () => {};

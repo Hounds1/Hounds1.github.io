@@ -8,9 +8,11 @@
   <title>Hounds — 백엔드 개발 포트폴리오</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='7' fill='%23101216'/%3E%3Cpath d='M24 10l14 14-14 14-14-14z' fill='%23b7cbe8'/%3E%3C/svg%3E">
   <link rel="preload" href="pretendard.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=20261115-contact">
+  <link rel="stylesheet" href="stack-cases.css">
   <script src="vendor/particles.min.js" defer></script>
   <script src="vendor/motion.js" defer></script>
+  <script src="stack-cases.js" defer></script>
   <script src="script.js" defer></script>
 </head>
 <body id="top">
@@ -21,6 +23,7 @@
       <a href="#experience">경력</a>
       <a href="#stack">기술 스택</a>
       <a href="projects.html">프로젝트</a>
+      <a href="#contact">Contact</a>
     </nav>
     <button class="motion-toggle header-motion" type="button" id="motion-toggle" aria-pressed="false"><span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">움직임 줄이기</span></button>
   </header>
@@ -73,7 +76,7 @@
 
     <section class="stack" id="stack" aria-labelledby="stack-title">
       <div class="page-width">
-        <div class="section-heading"><h2 id="stack-title">Tech stack<span>.</span></h2><p>개발과 운영에 사용하는 기술</p></div>
+        <div class="section-heading"><h2 id="stack-title">Tech stack<span>.</span></h2><p>기술을 누르면 사용 경험과 관련 프로젝트로 이어집니다.</p></div>
         <div class="stack-groups">
           <section class="stack-group" aria-labelledby="stack-backend">
             <div class="stack-group-copy"><h3 id="stack-backend">Backend</h3><p>현장 서비스의 업무 로직과 공통 기능 개발</p></div>
@@ -161,7 +164,11 @@
     <section class="projects-cta page-width" aria-labelledby="projects-cta-title">
       <p class="section-kicker">프로젝트 기록</p>
       <a href="projects.html" class="projects-cta-link"><h2 id="projects-cta-title">작업의 맥락까지.<br><span>Explore my work.</span></h2><span class="cta-arrow" aria-hidden="true">↗</span></a>
-      <p>개인 프로젝트 2개와 17개 현장 프로젝트, 공통 백엔드 설계에 담긴 문제 해결 과정을 살펴보세요.</p>
+      <p>17개 현장 프로젝트와 공통 백엔드 설계, 개인 프로젝트 2개에 담긴 문제 해결 과정을 살펴보세요.</p>
+    </section>
+    <section class="contact page-width" id="contact" aria-labelledby="contact-title">
+      <div class="contact-copy"><p class="section-kicker">코드와 개발 기록</p><h2 id="contact-title">Contact<span>.</span></h2><p>구현한 코드와 이어가는 작업은<br>GitHub에서 확인할 수 있습니다.</p></div>
+      <a class="contact-github" href="https://github.com/Hounds1" target="_blank" rel="noopener noreferrer"><span class="contact-platform">GitHub</span><span class="contact-account">Hounds1<span aria-hidden="true">↗</span></span><span class="contact-caption">프로필과 저장소 살펴보기</span></a>
     </section>
   </main>
 
