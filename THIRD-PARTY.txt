@@ -1,10 +1,32 @@
 THIRD-PARTY COMPONENTS AND ASSET SOURCES
 ======================================
 
-This portfolio serves the following components and icons from local files.
-asset-sources.json records the exact download URLs, package versions, and
-downloaded byte counts. Keep that manifest and the license files below with
+This portfolio serves its fonts, libraries, and artwork from local files.
+asset-sources.json records upstream URLs, versions, local modifications,
+file sizes, and SHA-256 digests. Original artwork is identified separately.
+Keep this notice, the manifest, and the applicable license files with
 redistributed copies of the portfolio.
+
+Pretendard Variable 1.3.9
+-------------------------
+File: pretendard.woff2
+Upstream file name: PretendardVariable.woff2
+Project: https://github.com/orioncactus/pretendard
+Source:
+https://raw.githubusercontent.com/orioncactus/pretendard/v1.3.9/packages/pretendard/dist/web/variable/woff2/PretendardVariable.woff2
+License: SIL Open Font License 1.1 (OFL-1.1).
+Copyright (c) 2021, Kil Hyung-jin; Reserved Font Name Pretendard.
+Full license: OFL.txt
+License source:
+https://raw.githubusercontent.com/orioncactus/pretendard/v1.3.9/LICENSE
+The font's embedded notice is Copyright (c) 2023 Kil Hyung-jin and is
+preserved inside the font. The upstream license notice is retained above.
+The font binary is unmodified; only its local filename was shortened.
+On 2026-11-16, its bytes were verified against the official v1.3.9 file.
+Size: 2057688 bytes.
+SHA-256: 9599f12fd42fc0bce1cd50b47a0c022e108d7aa64dd0d1bb0ed44f3282d900b4
+Embedded family: Pretendard Variable.
+Embedded version: Version 1.309;Glyphs 3.2 (3225).
 
 particles.js 2.0.0
 ------------------
@@ -27,18 +49,18 @@ Use: The official browser UMD bundle exposes window.Motion. The portfolio
 uses animate, inView, stagger, and hover for section entrances, technology
 items, and project selection. Motion+ paid example source is not bundled.
 
-Devicon 2.18.0
---------------
-Files in assets/icons/: docker.svg, java.svg, mariadb.svg, maven.svg,
-nginx.svg, redis.svg, rockylinux.svg, spring.svg, ubuntu.svg.
-Project: https://github.com/devicons/devicon
-Source template:
-https://cdn.jsdelivr.net/npm/devicon@2.18.0/icons/{name}/{name}-original.svg
-License: MIT; Copyright (c) 2015 konpa.
-Full license: assets/icons/devicon-LICENSE.txt
-The product names and logos identify the technologies used. Product
-trademarks remain the property of their respective owners. Their appearance
-does not imply sponsorship or endorsement of this portfolio.
+Original technology illustrations
+---------------------------------
+Files in assets/icons/: backend-java.svg, backend-spring.svg,
+data-mapper.svg, data-relational.svg, data-cache.svg, build-package.svg,
+infra-proxy.svg, infra-balancer.svg, infra-linux.svg, infra-server.svg,
+infra-container.svg.
+These geometric SVG illustrations were created in code for this portfolio
+with AI coding assistance. They depict software functions, not brand logos.
+No third-party logo artwork was used as their source. The JPA text badge is
+also rendered by this portfolio; it is not a third-party logo image.
+Product names identify technologies used in the described work. They do not
+indicate sponsorship, certification, or endorsement by the product owners.
 
 Lucide Static 1.73.0
 --------------------
@@ -53,35 +75,36 @@ License: ISC; Copyright (c) 2026 Lucide Icons and Contributors.
 The package also retains the MIT license for icons derived from Feather,
 Copyright (c) 2013-present Cole Bemis. The terminal icon is in that list.
 Full license, including both notices: assets/icons/lucide-LICENSE.txt
+Local changes: stroke color is #506780 and stroke width is 1.25 to match
+the portfolio's illustration style. Icon geometry and notices are retained.
 
-HAProxy logo
-------------
-File: assets/icons/haproxy.png
-Official source: https://www.haproxy.org/img/logo-med.png
-Official project: https://www.haproxy.org/
-Used to identify HAProxy in the technology list. No ownership or general
-open-source license for this logo is claimed by this portfolio.
+HAProxy name and trademark notice
+---------------------------------
+HAProxy® is a registered trademark of HAProxy Technologies SAS.
+This independent portfolio is not affiliated with or endorsed by HAProxy.
+The technology label refers to the HAProxy load balancer. It uses the
+original traffic-distribution illustration infra-balancer.svg, not a logo.
+The landing page includes a visible registration symbol and footer notice.
+Policy: https://www.haproxy.com/legal/haproxy-trademark-policy
+Policy reviewed: 2026-11-16.
 
-MyBatis logo
-------------
-File: assets/icons/mybatis.png
-Official source: https://mybatis.org/images/mybatis-logo.png
-Official project: https://mybatis.org/
-Used to identify MyBatis in the technology list. The MyBatis name and logo
-remain the property of their respective owners. No general open-source
-license for this logo is claimed by this portfolio.
-
-Additional official product assets
-----------------------------------
-Any additional product-logo files are documented individually in
-asset-sources.json with their official source URLs. A software project's
-license is not automatically asserted to license its trademarks or logos.
-Original brand marks remain the property of their respective owners.
+Brand artwork removal
+----------------------
+The current distribution contains no MyBatis, HAProxy, Devicon product-logo,
+or NAVER Cloud promotional image files. Technology names remain descriptive
+text; software copyright licenses are not treated as trademark permissions.
+For MyBatis, the official About page identifies Apache-2.0 for source code
+and documentation but did not establish logo reuse terms in this review:
+https://blog.mybatis.org/p/about.html?m=1
+Reviewed: 2026-11-16. The former logo was replaced by data-mapper.svg without
+asserting that the prior use was unlawful. The other product logos were also
+replaced as a conservative design choice, not as a finding of infringement.
+Earlier Git revisions have their own asset and license records.
 
 Implementation notes
 --------------------
-The font choices are inherited from the existing portfolio. Technology
-descriptions, project diagrams, and layout code belong to this portfolio;
+Technology descriptions, project diagrams, and layout code were prepared
+for this portfolio;
 third-party library and icon licenses are limited to the files identified
 above and in asset-sources.json.
 

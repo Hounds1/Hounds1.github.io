@@ -43,7 +43,7 @@
       ]
     },
     'Nginx': { context: '개발·운영 환경', summary: '산업 현장 서비스의 개발 서버와 운영 환경에서 Nginx를 사용했습니다.', items: [fieldWork] },
-    'HAProxy': { context: '일부 프로젝트의 운영 환경', summary: '프로젝트별 구성에 맞춰 일부 서비스의 개발·운영 환경에 HAProxy를 사용했습니다.', items: [fieldWork] },
+    'HAProxy': { title: 'HAProxy® 로드 밸런서', context: '일부 프로젝트의 운영 환경', summary: '프로젝트별 구성에 맞춰 일부 서비스의 개발·운영 환경에 HAProxy 로드 밸런서를 사용했습니다.', items: [fieldWork] },
     'Rocky Linux': { context: '개발·운영 환경', summary: '회사 서비스의 개발 서버와 운영 환경에서 Rocky Linux를 사용했습니다.', items: [fieldWork] },
     'Ubuntu': { context: '개발·운영 환경', summary: '회사 서비스의 개발 서버와 운영 환경에서 Ubuntu를 사용했습니다.', items: [fieldWork] },
     'Docker': {

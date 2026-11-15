@@ -1,0 +1,8 @@
+# Keep published asset bytes consistent with asset-sources.json SHA-256 values.
+assets/icons/*.svg text eol=lf
+assets/icons/*-LICENSE.txt text eol=lf
+vendor/*.js text eol=lf
+vendor/*-LICENSE.txt text eol=lf
+OFL.txt text eol=lf
+assets/images/*.png binary
+pretendard.woff2 binary

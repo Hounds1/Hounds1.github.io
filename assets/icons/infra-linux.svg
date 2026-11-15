@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <title>Operating system shell</title>
+  <g stroke="#506780" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="5" y="7" width="38" height="30" rx="4"/>
+    <path d="m12 16 6 6-6 6m11 0h10"/>
+    <path d="M18 42h12m-6-5v5" stroke="#7993a6"/>
+  </g>
+</svg>

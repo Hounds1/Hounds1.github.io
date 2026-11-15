@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none">
+  <title>Request proxy</title>
+  <g stroke="#506780" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="17" y="7" width="14" height="34" rx="4"/>
+    <path d="M17 17h14m-14 14h14" stroke="#7993a6"/>
+    <path d="M3 24h10l-4-4m4 4-4 4m26-4h10l-4-4m4 4-4 4"/>
+  </g>
+  <circle cx="24" cy="12" r="1.5" fill="#7993a6"/>
+  <circle cx="24" cy="36" r="1.5" fill="#7993a6"/>
+</svg>
