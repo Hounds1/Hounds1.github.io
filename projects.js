@@ -6,14 +6,23 @@
   const featuredGrid = document.getElementById('featured-grid');
   const archiveGrid = document.getElementById('archive-grid');
   const engineeringGrid = document.getElementById('engineering-grid');
-  const categories = { safety: '안전·관제', access: '호출·출입', assets: '자산·물질', engineering: '공통 백엔드 설계' };
+  const personalGrid = document.getElementById('personal-grid');
+  const categories = { personal: '개인 프로젝트', safety: '안전·관제', access: '호출·출입', assets: '자산·물질', engineering: '공통 백엔드 설계' };
   const artTypes = { '01': 'rtls', '02': 'evacuation', '03': 'call', '04': 'assets' };
+  const personalArtTypes = { '19': 'flowit', '20': 'bullseye' };
+  const projectOrder = [
+    ...projects.filter(project => project.category === 'personal'),
+    ...projects.filter(project => project.category === 'engineering'),
+    ...projects.filter(project => artTypes[project.id]),
+    ...projects.filter(project => !artTypes[project.id] && !['personal', 'engineering'].includes(project.category))
+  ];
   let opener;
   let selectedId;
   let closing = false;
   let previousBodyOverflow = '';
   let clearCardMotion = () => {};
   let clearSimulation = () => {};
+  let clearLogDemo = () => {};
   let transitioning = false;
   let activeTransition;
   let pendingClose = null;
@@ -22,6 +31,17 @@
   let diagrams = [];
   const visibleDiagrams = new Set();
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+
+  function sourceLinks(links, className, label) {
+    const items = (links || []).flatMap(link => {
+      try {
+        const url = new URL(link.url);
+        if (url.protocol !== 'https:' || url.username || url.password || !link.label) return [];
+        return [`<a href="${escape(url.href)}" target="_blank" rel="noopener noreferrer">${escape(link.label)}<span aria-hidden="true">↗</span></a>`];
+      } catch (_) { return []; }
+    });
+    return items.length ? `<div class="${className}" role="group" aria-label="${label}">${items.join('')}</div>` : '';
+  }
 
   function art(project, context) {
     if (project.category === 'engineering') {
@@ -44,9 +64,10 @@
         ${art(project, 'card')}
       </div></button>`;
     }
-    const featured = !!artTypes[project.id];
+    const personal = project.category === 'personal';
+    const featured = personal || !!artTypes[project.id];
     const interactive = project.id === '01' || project.id === '03';
-    return `<button class="project-card ${featured ? 'featured-card' : 'archive-card'}" type="button" data-project="${project.id}" data-art="${artTypes[project.id] || 'archive'}" aria-haspopup="dialog" aria-label="${escape(project.shortTitle)} 상세 보기"><div class="card-surface">
+    return `<button class="project-card ${featured ? 'featured-card' : 'archive-card'}${personal ? ' personal-card' : ''}" type="button" data-project="${project.id}" data-art="${personalArtTypes[project.id] || artTypes[project.id] || 'archive'}" aria-haspopup="dialog" aria-label="${escape(project.shortTitle)} 상세 보기"><div class="card-surface">
       ${art(project, 'card')}
       <div class="card-info">
         <div class="card-topline"><span>${project.id} / ${escape(categories[project.category])}</span>${featured ? `<span>${escape(project.period)}</span>` : '<span class="archive-mark" aria-hidden="true">↗</span>'}</div>
@@ -60,17 +81,20 @@
   function render(filter = 'all') {
     clearCardMotion();
     const filtered = projects.filter(project => filter === 'all' || project.category === filter);
-    const featured = filtered.filter(project => artTypes[project.id]);
-    const archive = filtered.filter(project => !artTypes[project.id] && project.category !== 'engineering');
+    const personal = filtered.filter(project => project.category === 'personal');
+    const featured = filtered.filter(project => artTypes[project.id] && project.category !== 'personal');
+    const archive = filtered.filter(project => !artTypes[project.id] && !['personal', 'engineering'].includes(project.category));
     const engineering = filtered.filter(project => project.category === 'engineering');
+    personalGrid.innerHTML = personal.map(card).join('');
     engineeringGrid.innerHTML = engineering.map(card).join('');
     featuredGrid.innerHTML = featured.map(card).join('');
     archiveGrid.innerHTML = archive.map(card).join('');
     document.getElementById('featured-section').hidden = !featured.length;
     document.getElementById('archive-section').hidden = !archive.length;
     document.getElementById('engineering-section').hidden = !engineering.length;
+    document.getElementById('personal-section').hidden = !personal.length;
     document.getElementById('entry-count').textContent = projects.length;
-    document.getElementById('filter-status').textContent = [featured.length + archive.length ? `${featured.length + archive.length} projects` : '', engineering.length ? `${engineering.length} engineering` : ''].filter(Boolean).join(' · ');
+    document.getElementById('filter-status').textContent = [personal.length ? `${personal.length} personal` : '', featured.length + archive.length ? `${featured.length + archive.length} projects` : '', engineering.length ? `${engineering.length} engineering` : ''].filter(Boolean).join(' · ');
     document.querySelectorAll('[data-filter]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.filter === filter)));
     fx?.animate(document.querySelectorAll('.project-card'), { opacity: [.3, 1], y: [12, 0] }, { duration: .35, delay: index => Math.min(index * .035, .18) });
     clearCardMotion = window.bindProjectCardMotion?.(document.querySelectorAll('.project-card'), fx) || (() => {});
@@ -167,11 +191,14 @@
         <div class="modal-intro">
           <p class="modal-category">${escape(categories[project.category])}<span aria-hidden="true">/</span> ${project.category === 'engineering' ? 'ENGINEERING' : `PROJECT ${project.id}`}</p>
           <h2 id="dialog-title" class="modal-title" tabindex="-1">${escape(project.shortTitle)}</h2>
+          ${detail.context ? `<p class="modal-context">${escape(detail.context)}</p>` : ''}
           <p id="dialog-lead" class="modal-lead">${escape(detail.lead)}</p>
           <dl class="modal-facts">
             <div><dt>개발·개선</dt><dd>${escape(project.period)}</dd></div>
             <div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>
           </dl>
+          ${detail.stack?.length ? `<ul class="modal-stack" aria-label="사용 기술">${detail.stack.map(tech => `<li>${escape(tech)}</li>`).join('')}</ul>` : ''}
+          ${sourceLinks(detail.links, 'modal-source-links', '프로젝트 저장소와 작업 기록')}
         </div>
         <div class="modal-art">${art(project, 'modal')}</div>
       </header>
@@ -180,10 +207,13 @@
         <ul class="contribution-list">${detail.contributions.map((item, index) => `<li><span class="contribution-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4><p>${escape(item.body)}</p></li>`).join('')}</ul>
       </section>
       ${window.portfolioSimulations?.render(project.id) || ''}
+      ${window.portfolioLogDemo?.render(project.id) || ''}
       <section class="modal-section cases-section" aria-labelledby="solutions-title">
         <div class="modal-section-heading"><h3 id="solutions-title">문제를 푼 방식</h3><span>${String(detail.cases.length).padStart(2, '0')} CASES</span></div>
-        <div class="case-studies">${detail.cases.map((item, index) => `
-          <article class="case-study">
+        <div class="case-studies">${detail.cases.map((item, index) => {
+          const sources = sourceLinks(item.sources, 'case-sources', '관련 구현 기록');
+          return `
+          <article class="case-study${sources ? ' has-sources' : ''}">
             <header class="case-heading"><span class="case-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4></header>
             ${caseDiagram(item.diagram)}
             <dl class="case-flow">
@@ -191,7 +221,9 @@
               <div class="case-action"><dt>해결</dt><dd>${escape(item.action)}</dd></div>
               <div class="case-change"><dt><span aria-hidden="true">↳</span> 달라진 점</dt><dd>${escape(item.change)}</dd></div>
             </dl>
-          </article>`).join('')}</div>
+            ${sources}
+          </article>`;
+        }).join('')}</div>
       </section>
       <button type="button" class="modal-next" data-next="${next.id}"><span><small>다음 프로젝트</small><strong>${escape(next.shortTitle)}</strong></span><span aria-hidden="true">↗</span></button>`;
   }
@@ -200,7 +232,7 @@
     if (transitioning || closing) return;
     const project = projects.find(item => item.id === id);
     if (!project) return;
-    const next = projects[(projects.indexOf(project) + 1) % projects.length];
+    const next = projectOrder[(projectOrder.indexOf(project) + 1) % projectOrder.length];
     const wasOpen = dialog.open;
     const source = document.querySelector(`[data-project="${id}"]`);
     if (!wasOpen) {
@@ -211,15 +243,17 @@
     const useMorph = !wasOpen && updateHistory && source && canMorph();
     const update = () => {
       selectedId = id;
-      dialog.dataset.art = project.category === 'engineering' ? 'engineering' : artTypes[id] || 'archive';
+      dialog.dataset.art = project.category === 'engineering' ? 'engineering' : personalArtTypes[id] || artTypes[id] || 'archive';
       stopDiagramMotion();
       clearSimulation();
+      clearLogDemo();
       content.innerHTML = projectDetail(project, next);
       document.body.style.overflow = 'hidden';
       if (!wasOpen) dialog.showModal();
       dialog.scrollTop = 0;
       document.getElementById('dialog-title').focus({ preventScroll: true });
       clearSimulation = window.portfolioSimulations?.mount(content, project.id) || (() => {});
+      clearLogDemo = window.portfolioLogDemo?.mount(content, project.id) || (() => {});
       watchDiagramMotion();
       if (updateHistory) {
         if (wasOpen) history.replaceState(history.state, '', `#project-${id}`);
@@ -279,6 +313,8 @@
     stopDiagramMotion();
     clearSimulation();
     clearSimulation = () => {};
+    clearLogDemo();
+    clearLogDemo = () => {};
     selectedId = null;
     document.body.style.overflow = previousBodyOverflow;
     if (opener?.isConnected) opener.focus({ preventScroll: true });

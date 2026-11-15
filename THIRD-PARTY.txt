@@ -101,3 +101,8 @@ assets/images/project-01.png through project-17.png were generated using
 the built-in image_gen tool for this portfolio. They are project-themed
 concept images, not photographs documenting the actual clients' sites.
 Generation prompts and original output records are kept in local working files and are not published.
+
+assets/images/project-19.png (Flowit) and project-20.png (Bullseye Core)
+were also generated with the built-in image_gen tool. They illustrate
+collaborative work planning and Linux host diagnostics, respectively;
+they are conceptual covers, not screenshots or photographs of the actual projects.

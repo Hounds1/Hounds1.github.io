@@ -1614,5 +1614,364 @@ window.portfolioProjects = [
         }
       ]
     }
+  },
+  {
+    "id": "19",
+    "shortTitle": "Flowit",
+    "hook": "워크스페이스 권한과 작업 알림의 발송 순서를 설계",
+    "category": "personal",
+    "tags": [
+      "협업 API",
+      "권한 제어",
+      "실시간 알림"
+    ],
+    "period": "2026.05 — 2026.07",
+    "detail": {
+      "context": "워크스페이스에서 멤버와 작업·댓글을 관리하고 변경 사항을 알림으로 전달하는 협업 서비스의 메인 서버입니다.",
+      "lead": "멤버 탈퇴 이후의 권한 공백을 막고, 저장된 작업 알림이 수신자별 순서에 맞춰 전달되도록 백엔드 흐름을 구성했습니다.",
+      "role": "워크스페이스·작업 API, 권한 정책, 알림·WebSocket, API 문서화",
+      "stack": [
+        "Java 17",
+        "Spring Boot",
+        "Spring Security",
+        "Spring Data JPA",
+        "MySQL",
+        "Redis",
+        "WebSocket",
+        "Spring REST Docs",
+        "Docker"
+      ],
+      "links": [
+        {
+          "label": "GitHub 저장소",
+          "url": "https://github.com/runtime-lab/flowit-main-server"
+        },
+        {
+          "label": "내가 작성한 PR",
+          "url": "https://github.com/runtime-lab/flowit-main-server/pulls?q=is%3Apr+is%3Amerged+author%3AHounds1"
+        }
+      ],
+      "contributions": [
+        {
+          "title": "협업 기능과 권한",
+          "body": "회원가입·JWT 인증부터 워크스페이스·멤버·작업·댓글 API까지 구현하고, 역할별 권한과 활동 이력을 연결했습니다."
+        },
+        {
+          "title": "저장되는 실시간 알림",
+          "body": "알림·수신자·outbox 저장 구조와 JWT 인증 WebSocket을 구성하고, 작업·댓글 변경을 개인 알림으로 전달했습니다."
+        },
+        {
+          "title": "클라이언트 연동 기반",
+          "body": "테스트 기반 API 문서와 버전 검증을 연결하고, 로컬 JDK 없이 실행할 수 있는 Docker 개발 환경을 구성했습니다."
+        }
+      ],
+      "cases": [
+        {
+          "title": "마지막 OWNER가 떠나는 경우",
+          "problem": "멤버의 역할 변경과 탈퇴를 허용하면서도 워크스페이스에 관리 권한이 남도록 정책을 정리해야 했습니다.",
+          "action": "마지막 OWNER의 강등을 차단했습니다. 탈퇴 시 다른 OWNER가 남으면 승계를 생략하고, 마지막 OWNER라면 가장 오래된 ADMIN에게 넘기며 ADMIN이 없으면 탈퇴를 거절하도록 했습니다.",
+          "change": "다중 OWNER를 허용하면서도 마지막 소유자의 탈퇴·강등으로 관리 권한이 비는 경우를 구분해 처리합니다.",
+          "diagram": {
+            "kind": "branch",
+            "summary": "OWNER 탈퇴 시 다른 OWNER가 남으면 그대로 탈퇴하고, 마지막 OWNER라면 가장 오래된 ADMIN에게 승계합니다. 승계할 ADMIN도 없으면 탈퇴를 거절합니다.",
+            "start": {
+              "label": "OWNER 탈퇴 요청",
+              "detail": "현재 워크스페이스 멤버 확인"
+            },
+            "gate": {
+              "label": "남은 관리 권한 확인",
+              "detail": "다른 OWNER와 ADMIN 유무"
+            },
+            "paths": [
+              {
+                "when": "다른 OWNER 있음",
+                "label": "승계 없이 탈퇴",
+                "detail": "남아 있는 OWNER 권한 유지",
+                "tone": "keep"
+              },
+              {
+                "when": "마지막 OWNER · ADMIN 있음",
+                "label": "오래된 ADMIN에게 승계",
+                "detail": "관리 권한을 넘기고 탈퇴",
+                "tone": "keep"
+              },
+              {
+                "when": "마지막 OWNER · ADMIN 없음",
+                "label": "탈퇴 거절",
+                "detail": "관리 권한 공백 방지",
+                "tone": "muted"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #49 · 역할 변경 정책",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/49"
+            },
+            {
+              "label": "PR #53 · 탈퇴와 권한 승계",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/53"
+            },
+            {
+              "label": "PR #73 · 다중 OWNER 정책",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/73"
+            }
+          ]
+        },
+        {
+          "title": "알림 저장과 수신자별 발송 순서",
+          "problem": "작업 변경 알림을 이력으로 남기고, 같은 수신자에게 여러 알림이 전달될 때 발송 경합과 순서를 처리할 필요가 있었습니다.",
+          "action": "알림·수신자·outbox를 저장하고 소켓 전달의 트랜잭션 범위를 정리했습니다. 알림 그룹·순서를 내부에서 관리하며 수신자별 발송을 직렬화하고, Redis 분산 잠금과 ZSET 재시도 큐로 경합을 보정했습니다.",
+          "change": "알림 목록 조회와 실시간 전달이 같은 저장 흐름을 사용하며, 수신자별 발송 순서와 재시도 경로를 명시적으로 관리합니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "작업 변경으로 생성한 알림을 outbox 처리로 저장하고, 알림 그룹과 순서를 기준으로 수신자별 발송을 직렬화합니다. Redis 잠금과 ZSET 재시도 큐로 경합을 보정해 인증된 사용자 WebSocket으로 전달합니다.",
+            "steps": [
+              {
+                "label": "작업 변경 이벤트",
+                "detail": "생성·담당자·상태 변경"
+              },
+              {
+                "label": "outbox → 알림 저장",
+                "detail": "알림과 수신자 이력 관리"
+              },
+              {
+                "label": "수신자별 발송 직렬화",
+                "detail": "Redis 잠금 · ZSET 재시도"
+              },
+              {
+                "label": "사용자 WebSocket",
+                "detail": "인증된 개인 큐로 전달"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #78 · 영속 알림과 outbox",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/78"
+            },
+            {
+              "label": "PR #83 · 트랜잭션 범위 수정",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/83"
+            },
+            {
+              "label": "PR #88 · 발송 순서와 경합",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/88"
+            }
+          ]
+        },
+        {
+          "title": "API 변경과 문서 버전의 불일치",
+          "problem": "API가 바뀔 때 응답 문서와 클라이언트 연동 안내의 버전도 함께 맞춰야 했습니다.",
+          "action": "REST Docs 테스트에서 snippets를 생성하고 HTML·OpenAPI YAML로 제공했습니다. API 문서·Integration Note·README의 버전을 프로젝트 버전과 검사하고 Gradle check와 GitHub Actions에 연결했습니다.",
+          "change": "API 문서를 실행 가능한 JAR에 포함하며, 문서 버전이 맞지 않는 변경은 검증 단계에서 드러나도록 했습니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "REST Docs 테스트로 문서 snippets를 만들고 HTML과 OpenAPI YAML을 생성합니다. 프로젝트 버전과 문서 버전의 일치 여부를 Gradle check 및 CI에서 검사하며 생성된 문서를 애플리케이션에 포함합니다.",
+            "steps": [
+              {
+                "label": "REST Docs 테스트",
+                "detail": "요청·응답 snippets 생성"
+              },
+              {
+                "label": "HTML · OpenAPI",
+                "detail": "같은 snippets에서 문서 생성"
+              },
+              {
+                "label": "문서 버전 검증",
+                "detail": "Gradle check · CI 연결"
+              },
+              {
+                "label": "JAR에 문서 포함",
+                "detail": "/docs에서 연동 문서 제공"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #34 · 문서 버전 동기화",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/34"
+            },
+            {
+              "label": "PR #45 · CI 버전 검증",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/45"
+            },
+            {
+              "label": "PR #70 · OpenAPI 제공",
+              "url": "https://github.com/runtime-lab/flowit-main-server/pull/70"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "id": "20",
+    "shortTitle": "Bullseye Core",
+    "hook": "Linux 자원 압력을 진단하고 원인 후보와 판단 근거를 함께 제공",
+    "category": "personal",
+    "tags": [
+      "Linux 진단",
+      "PSI",
+      "cgroup v2"
+    ],
+    "period": "2026.09",
+    "detail": {
+      "context": "CPU·메모리·I/O 지표와 Linux PSI를 읽어 호스트의 자원 압력과 원인 후보를 알려주는 독립 실행형 진단 에이전트입니다.",
+      "lead": "Linux 지표 수집부터 지속 압력 진단, 워크로드 원인 추정과 상태 파일 발행까지 에이전트의 처리 흐름을 구현했습니다.",
+      "role": "개인 개발 · 수집·진단·상태 발행 설계 및 구현",
+      "stack": [
+        "Java 25",
+        "Gradle",
+        "Linux /proc",
+        "PSI",
+        "cgroup v2",
+        "Docker"
+      ],
+      "links": [
+        {
+          "label": "GitHub · README",
+          "url": "https://github.com/Hounds1/Bullseye-Core"
+        },
+        {
+          "label": "PR #1 · 초기 진단 파이프라인",
+          "url": "https://github.com/Hounds1/Bullseye-Core/pull/1"
+        },
+        {
+          "label": "PR #2 · Linux 압력 진단",
+          "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
+        }
+      ],
+      "contributions": [
+        {
+          "title": "수집·진단·발행 경계 설계",
+          "body": "Java 멀티모듈을 구성하고 Linux 지표 수집, 메모리 기반 관측 구간, 진단과 상태 발행의 실행 책임을 나눴습니다."
+        },
+        {
+          "title": "리소스별 압력 판단",
+          "body": "CPU 사용률·메모리 사용률과 PSI를 리소스 특성에 맞게 해석하고, 지속 시간·상승 추세·복구 조건을 진단에 반영했습니다."
+        },
+        {
+          "title": "워크로드 추적과 상태 제공",
+          "body": "cgroup v2로 압력 원인 후보를 추정하고, 판단 근거·상태·워크로드를 외부 DB 없이 JSON 파일로 제공했습니다."
+        }
+      ],
+      "cases": [
+        {
+          "title": "높은 사용률과 실제 자원 압력 구분",
+          "problem": "순간적인 사용률 상승이나 메모리 페이지 캐시만으로 위험을 판단하면 실제 자원 대기 상태와 구분하기 어렵습니다.",
+          "action": "CPU는 사용률과 복구 조건을 중심으로 PSI를 보조 근거로 사용했습니다. 메모리는 높은 사용률과 PSI를 함께 확인하고, I/O는 지속되는 PSI 대기를 기준으로 판단했습니다.",
+          "change": "지속 시간과 상승 추세를 반영해 리소스별 상태를 판단하고, 가장 높은 활성 심각도를 호스트 상태에 반영합니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "Linux 사용률과 PSI를 수집하고 관측 구간의 지속 시간·추세를 분석한 뒤 리소스별 진단 결과 중 가장 높은 심각도를 호스트 상태로 선택합니다.",
+            "steps": [
+              {
+                "label": "Linux 지표 수집",
+                "detail": "사용률·PSI 대기 지표"
+              },
+              {
+                "label": "관측 구간 분석",
+                "detail": "지속 시간·상승 추세"
+              },
+              {
+                "label": "리소스별 규칙",
+                "detail": "CPU·메모리·I/O·복구 조건"
+              },
+              {
+                "label": "호스트 상태 결정",
+                "detail": "가장 높은 활성 심각도"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #2 · 압력 진단 규칙",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
+            },
+            {
+              "label": "README · Diagnostic policy",
+              "url": "https://github.com/Hounds1/Bullseye-Core#diagnostic-policy"
+            }
+          ]
+        },
+        {
+          "title": "탐색 범위를 제한하고 불확실한 원인은 보류",
+          "problem": "cgroup을 제한 없이 탐색하면 진단 작업 자체의 부담이 커질 수 있고, 점수가 비슷한 후보 중 하나를 원인으로 단정하기 어렵습니다.",
+          "action": "탐색 깊이와 그룹 수를 제한하고 발견한 대상을 캐시했습니다. 별도 실행기에서 주기적으로 샘플링해 리소스별 압력 점수를 비교하고, 후보 간 차이가 불명확하면 UNKNOWN으로 유지했습니다.",
+          "change": "정해진 탐색 범위 안에서 워크로드를 추적하며, 근거가 부족한 경우에는 특정 워크로드를 억지로 원인으로 지정하지 않습니다.",
+          "diagram": {
+            "kind": "branch",
+            "summary": "깊이와 그룹 수를 제한해 발견한 cgroup을 캐시하고 별도 샘플링한 뒤, 압력 점수 차이가 뚜렷하면 원인 후보를 표시하고 불명확하면 UNKNOWN을 유지합니다.",
+            "start": {
+              "label": "cgroup 대상 수집",
+              "detail": "탐색 제한·캐시·별도 샘플링"
+            },
+            "gate": {
+              "label": "압력 점수 비교",
+              "detail": "후보 사이 구분 가능 여부"
+            },
+            "paths": [
+              {
+                "when": "근거가 구분됨",
+                "label": "원인 후보 표시",
+                "detail": "워크로드·판단 근거 제공",
+                "tone": "keep"
+              },
+              {
+                "when": "후보 차이 불명확",
+                "label": "UNKNOWN 유지",
+                "detail": "원인 판단 보류",
+                "tone": "muted"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #2 · cgroup 워크로드 추적",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
+            }
+          ]
+        },
+        {
+          "title": "완성된 상태 파일만 교체",
+          "problem": "진단 상태를 읽는 쪽에 작성 중인 JSON이 노출되지 않도록 하고, 발행이나 일부 수집 실패가 호스트 지표 수집 전체로 번지지 않게 해야 했습니다.",
+          "action": "상태를 임시 파일에 쓴 뒤 flush하고 현재 파일을 원자적으로 교체했습니다. 발행·PSI·개별 cgroup 실패를 호스트 지표 수집에서 분리하고, 심각도·리소스·상태·주요 워크로드가 바뀔 때만 버전을 갱신했습니다.",
+          "change": "현재 상태는 완성된 JSON 스냅샷으로 제공되며, 버전은 의미 있는 상태 전환을 나타냅니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "진단 상태의 의미 있는 변경을 확인해 버전을 정하고 임시 파일을 작성·flush한 뒤 현재 상태 JSON을 원자적으로 교체합니다.",
+            "steps": [
+              {
+                "label": "진단 상태 결정",
+                "detail": "리소스·워크로드·판단 근거"
+              },
+              {
+                "label": "상태 변화 확인",
+                "detail": "의미 있는 변경 시 버전 증가"
+              },
+              {
+                "label": "임시 파일 작성",
+                "detail": "JSON 저장 후 flush"
+              },
+              {
+                "label": "현재 파일 교체",
+                "detail": "완성된 스냅샷을 원자적 반영"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "PR #1 · 상태 발행 파이프라인",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/1"
+            },
+            {
+              "label": "README · State output",
+              "url": "https://github.com/Hounds1/Bullseye-Core#state-output"
+            }
+          ]
+        }
+      ]
+    }
   }
 ];

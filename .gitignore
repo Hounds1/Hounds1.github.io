@@ -7,6 +7,8 @@ image-prompts*.json
 project-copy.json
 project-details.json
 common-backend-data.json
+personal-projects.json
+*-research.json
 build-project-data.py
 fetch-assets.py
 prepare-github-pages.py

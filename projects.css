@@ -24,6 +24,8 @@
 .project-card[data-art="evacuation"] .card-surface { background: #2b2832; }
 .project-card[data-art="call"] .card-surface { background: #1b3028; }
 .project-card[data-art="assets"] .card-surface { background: #332f26; }
+.project-card[data-art="flowit"] .card-surface { background: #1b3035; }
+.project-card[data-art="bullseye"] .card-surface { background: #302526; }
 .project-card:hover .card-surface, .project-card:focus-visible .card-surface { border-color: #ffffff48; box-shadow: 0 4px 8px #0002, 0 24px 50px #0005; }
 .card-info { padding: 28px 29px 0; position: relative; z-index: 1; }
 .card-topline { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 18px; color: #c1c9d0; font-size: 11px; font-variant-numeric: tabular-nums; }
@@ -58,6 +60,8 @@
 .archive-period { color: #8d9aac; font-size: 11px; font-variant-numeric: tabular-nums; }
 .archive-mark { font-size: 23px; color: #a8bbd2; }
 #engineering-section { margin-bottom: 30px; }
+#personal-section { margin-bottom: 45px; }
+.personal-card .card-topline span:first-child { color: #c4dedb; }
 .engineering-card .card-surface { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 40px; padding: 35px; background: #dce6e2; border-color: #e4ece9; color: #20362f; }
 .engineering-card-copy { min-width: 0; }
 .engineering-card .card-topline { color: #526c61; margin-bottom: 26px; }
@@ -95,16 +99,26 @@
 .project-dialog[data-art="evacuation"] .modal-cover { background: #2b2832; }
 .project-dialog[data-art="call"] .modal-cover { background: #1b3028; }
 .project-dialog[data-art="assets"] .modal-cover { background: #332f26; }
+.project-dialog[data-art="flowit"] .modal-cover { background: #1b3035; }
+.project-dialog[data-art="bullseye"] .modal-cover { background: #302526; }
 .modal-intro { min-width: 0; }
 .modal-category { display: flex; gap: 12px; color: var(--accent); font-size: 10px; letter-spacing: .04em; margin-bottom: 15px; }
 .modal-category span { opacity: .4; }
 .modal-title { font-size: clamp(26px, 2.6vw, 35px); line-height: 1.3; font-weight: 590; letter-spacing: -.045em; word-break: keep-all; overflow-wrap: anywhere; }
 .modal-title:focus { outline: none; }
+.modal-context { color: #afbdc9; font-size: 13px; line-height: 1.75; margin-top: 12px; word-break: keep-all; overflow-wrap: anywhere; }
 .modal-lead { font-size: 18px; line-height: 1.65; color: #e1e7ee; margin-top: 18px; letter-spacing: -.02em; word-break: keep-all; overflow-wrap: anywhere; }
 .modal-facts { display: grid; gap: 9px; margin-top: 24px; font-size: 12px; line-height: 1.6; }
 .modal-facts > div { display: grid; grid-template-columns: 65px 1fr; gap: 12px; }
 .modal-facts dt { color: #93a3b6; }
 .modal-facts dd { margin: 0; color: #ccd6e1; font-variant-numeric: tabular-nums; }
+.modal-stack { display: flex; flex-wrap: wrap; gap: 7px; list-style: none; margin: 20px 0 0; padding: 0; }
+.modal-stack li { padding: 5px 9px; border: 1px solid #a7c0d126; border-radius: 5px; color: #cad9e3; font-size: 10px; line-height: 1.4; background: #b2d4e607; }
+.modal-source-links, .case-sources { display: flex; flex-wrap: wrap; gap: 10px 19px; }
+.modal-source-links { margin-top: 20px; }
+.modal-source-links a, .case-sources a { display: inline-flex; align-items: center; gap: 8px; color: #c1d8e9; font-size: 12px; line-height: 1.6; text-decoration: underline; text-decoration-color: #88acc652; text-underline-offset: 4px; }
+.modal-source-links a:hover, .case-sources a:hover { color: #fff; text-decoration-color: currentColor; }
+.modal-source-links a > span, .case-sources a > span { font-size: 15px; }
 .modal-art { min-width: 0; align-self: stretch; }
 .modal-art .project-art { height: 100%; min-height: 235px; aspect-ratio: auto; border-radius: 10px; }
 .modal-art .project-cover-image { position: absolute; inset: 0; }
@@ -185,6 +199,9 @@ html.motion-reduced .flow-packet { animation: none !important; }
 .case-change dt { margin: 0; color: #a8c8bc; }
 .case-change dt span { margin-right: 5px; }
 .case-change dd { color: #c8ddd3; font-size: 14px; }
+.case-study.has-sources .case-change { margin-bottom: 0; }
+.case-sources { margin: 0 -22px -22px; padding: 11px 22px 14px; background: #8fae9f0c; }
+.case-sources a { color: #9fb6c9; font-size: 11px; }
 .modal-next { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 25px; border: 0; border-top: 1px solid #404d5f; padding: 25px 0 0; margin-top: 32px; color: var(--text); background: none; text-align: left; cursor: pointer; }
 .modal-next small { display: block; font-size: 11px; color: #8e9db0; margin-bottom: 9px; }
 .modal-next strong { font-size: 18px; font-weight: 500; }
@@ -249,6 +266,7 @@ html.motion-reduced .flow-packet { animation: none !important; }
   .card-open > span { width: 31px; height: 31px; }
   .card-surface { border-radius: 18px; }
   #archive-section { margin-top: 35px; }
+  #personal-section { margin-bottom: 30px; }
   .project-dialog { width: 100%; max-width: 100%; max-height: 100dvh; height: 100dvh; border-radius: 0; border: 0; }
   .modal-content { padding-inline: 20px; }
   .modal-cover { margin-inline: -20px; padding-inline: 20px; }
@@ -265,6 +283,7 @@ html.motion-reduced .flow-packet { animation: none !important; }
   .case-flow dd { font-size: 14px; }
   .case-problem { border-right: 0; padding-right: 0; }
   .case-change { grid-template-columns: 1fr; gap: 6px; margin: 0 -18px -18px; padding: 13px 18px; }
+  .case-sources { margin-inline: -18px; margin-bottom: -18px; padding-inline: 18px; }
 }
 @media (max-width: 700px) {
   .case-diagram { padding: 14px; }
