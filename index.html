@@ -8,12 +8,13 @@
   <title>Hounds — 백엔드 개발 포트폴리오</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect width='48' height='48' rx='7' fill='%23101216'/%3E%3Cpath d='M24 10l14 14-14 14-14-14z' fill='%23b7cbe8'/%3E%3C/svg%3E">
   <link rel="preload" href="pretendard.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="styles.css?v=20261115-contact">
+  <link rel="stylesheet" href="styles.css?v=experience-timeline">
+  <link rel="stylesheet" href="experience-timeline.css">
   <link rel="stylesheet" href="stack-cases.css">
   <script src="vendor/particles.min.js" defer></script>
   <script src="vendor/motion.js" defer></script>
   <script src="stack-cases.js" defer></script>
-  <script src="script.js" defer></script>
+  <script src="script.js?v=experience-timeline" defer></script>
 </head>
 <body id="top">
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
@@ -62,15 +63,49 @@
             <p class="employment-role">백엔드 개발 · 산업 현장 서비스</p>
           </div>
         </div>
-        <div class="experience-body">
-          <div class="experience-intro"><h3>현장마다 다른 요구.<br>함께 쓰는 백엔드.</h3><p>대피와 SOS, 인력 호출, 출입·자산 관리 서비스를 개발했습니다. 여러 현장에 반복되는 설정과 통신, 초기화는 공통 기능으로 정리했습니다.</p><a class="experience-detail-link" href="projects.html#project-18">공통 백엔드 설계 자세히 보기 <span aria-hidden="true">↗</span></a></div>
-          <div class="experience-list">
-            <article class="career-entry"><h3>운영 중에도 바뀌는 설정</h3><p>실행 시점의 설정 조회, 기존 값 보존과 변경 버전 관리를 공통화했습니다. 비밀값은 암호화하고 손상 데이터는 오류로 구분했습니다.</p></article>
-            <article class="career-entry"><h3>반복되는 데이터·통신 처리</h3><p>데이터 변환과 외부 통신을 공통 도구로 묶었습니다. 잘못된 요청, 서버 오류, 연결 실패를 구분하고 원인을 추적할 기록을 보강했습니다.</p></article>
-            <article class="career-entry"><h3>현장 간 조회·화면 설정</h3><p>회사 정보 조회, 알림 후속 조치와 화면 액션 설정을 공통 영역으로 옮겼습니다. 누락 정보와 표시 순서를 함께 정리했습니다.</p></article>
-            <article class="career-entry"><h3>초기화 경합과 실패 대응</h3><p>Redis 잠금으로 여러 서버의 중복 초기화를 제어했습니다. 중간 실패 시 DB 변경을 되돌리고, 환경에 맞춰 백그라운드 작업을 시작하도록 했습니다.</p></article>
-          </div>
+        <p class="timeline-intro">시작일 기준 최근순입니다. 기간에는 초기 개발과 이후 개선 작업이 포함됩니다.</p>
+        <!-- EXPERIENCE_TIMELINE:START -->
+        <div class="experience-timeline">
+          <section class="timeline-year" aria-labelledby="timeline-year-2026">
+            <div class="timeline-year-label"><h3 id="timeline-year-2026">2026</h3><span>03 RECORDS</span></div>
+            <ol class="timeline-items">
+              <li class="timeline-item" data-project="03"><a class="timeline-link" href="projects.html#project-03"><div class="timeline-copy"><h4>직원 호출·출입 관리</h4><p>호출·응답과 출입증 대여 절차 개발</p></div><span class="timeline-period"><time datetime="2026-07-21">2026.07.21</time><span aria-hidden="true">—</span><time datetime="2026-11-10">2026.11.10</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="08"><a class="timeline-link" href="projects.html#project-08"><div class="timeline-copy"><h4>입회자 기반 출입 관리</h4><p>입회자 판정·반납 정리·등록 문서 생성</p></div><span class="timeline-period"><time datetime="2026-06-02">2026.06.02</time><span aria-hidden="true">—</span><time datetime="2026-09-16">2026.09.16</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="09"><a class="timeline-link" href="projects.html#project-09"><div class="timeline-copy"><h4>작업자 안전·인원 집계</h4><p>대피·태그 관리와 인원 집계 개발</p></div><span class="timeline-period"><time datetime="2026-02-05">2026.02.05</time><span aria-hidden="true">—</span><time datetime="2026-09-18">2026.09.18</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+            </ol>
+          </section>
+          <section class="timeline-year" aria-labelledby="timeline-year-2025">
+            <div class="timeline-year-label"><h3 id="timeline-year-2025">2025</h3><span>08 RECORDS</span></div>
+            <ol class="timeline-items">
+              <li class="timeline-item" data-project="07"><a class="timeline-link" href="projects.html#project-07"><div class="timeline-copy"><h4>공장 크레인 안전 호출</h4><p>크레인 위치·비상 호출·운영 이력 관리</p></div><span class="timeline-period"><time datetime="2025-11-08">2025.11.08</time><span aria-hidden="true">—</span><time datetime="2026-10-08">2026.10.08</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="10"><a class="timeline-link" href="projects.html#project-10"><div class="timeline-copy"><h4>바코드 입출고·라벨 관리</h4><p>바코드 입출고·라벨 출력 연계 개발</p></div><span class="timeline-period"><time datetime="2025-10-28">2025.10.28</time><span aria-hidden="true">—</span><time datetime="2026-10-28">2026.10.28</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="18"><a class="timeline-link" href="projects.html#project-18"><div class="timeline-copy"><h4>공통 백엔드 설계</h4><p>운영 설정·초기화·실행 제어 공통화</p></div><span class="timeline-period"><time datetime="2025-10-04">2025.10.04</time><span aria-hidden="true">—</span><time datetime="2026-10-28">2026.10.28</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="04"><a class="timeline-link" href="projects.html#project-04"><div class="timeline-copy"><h4>화학물질 자산 관리</h4><p>화학물질 자산 상태·이력·알림 관리</p></div><span class="timeline-period"><time datetime="2025-10-01">2025.10.01</time><span aria-hidden="true">—</span><time datetime="2026-10-28">2026.10.28</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="05"><a class="timeline-link" href="projects.html#project-05"><div class="timeline-copy"><h4>크레인 충격 감지</h4><p>센서 분석 연계와 충격 현황·기준 관리</p></div><span class="timeline-period"><time datetime="2025-08-04">2025.08.04</time><span aria-hidden="true">—</span><time datetime="2026-06-02">2026.06.02</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="06"><a class="timeline-link" href="projects.html#project-06"><div class="timeline-copy"><h4>운반차·신호수 작업 지원</h4><p>작업 그룹·위치·연결 상태와 운영 설정</p></div><span class="timeline-period"><time datetime="2025-04-21">2025.04.21</time><span aria-hidden="true">—</span><time datetime="2026-10-28">2026.10.28</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="01"><a class="timeline-link" href="projects.html#project-01"><div class="timeline-copy"><h4>선박 작업자 안전관제</h4><p>대피·작업자 관리와 위험 신호 연계</p></div><span class="timeline-period"><time datetime="2025-02-20">2025.02.20</time><span aria-hidden="true">—</span><time datetime="2026-11-05">2026.11.05</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="17"><a class="timeline-link" href="projects.html#project-17"><div class="timeline-copy"><h4>자산 측위·일일 집계</h4><p>측위 요약 자료 생성·중복 검사 개발</p></div><span class="timeline-period"><time datetime="2025-01-22">2025.01.22</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+            </ol>
+          </section>
+          <section class="timeline-year" aria-labelledby="timeline-year-2024">
+            <div class="timeline-year-label"><h3 id="timeline-year-2024">2024</h3><span>05 RECORDS</span></div>
+            <ol class="timeline-items">
+              <li class="timeline-item" data-project="14"><a class="timeline-link" href="projects.html#project-14"><div class="timeline-copy"><h4>위치·가스·웨어러블 관제</h4><p>현장 관제 적용·장비 신호 처리 개선</p></div><span class="timeline-period"><time datetime="2024-10-24">2024.10.24</time><span aria-hidden="true">—</span><time datetime="2025-08-21">2025.08.21</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="12"><a class="timeline-link" href="projects.html#project-12"><div class="timeline-copy"><h4>출입증 대여·재실 관리</h4><p>출입증·현재 위치·이력 처리 개선</p></div><span class="timeline-period"><time datetime="2024-09-04">2024.09.04</time><span aria-hidden="true">—</span><time datetime="2026-01-09">2026.01.09</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="15"><a class="timeline-link" href="projects.html#project-15"><div class="timeline-copy"><h4>안전 알림·조치 이력 관리</h4><p>안전 알림·앱 로그인·센서값 개선</p></div><span class="timeline-period"><time datetime="2024-08-20">2024.08.20</time><span aria-hidden="true">—</span><time datetime="2024-09-11">2024.09.11</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="11"><a class="timeline-link" href="projects.html#project-11"><div class="timeline-copy"><h4>연구시설 출입·작업 관리</h4><p>출입·대피·외부 정보 연계 개발</p></div><span class="timeline-period"><time datetime="2024-05-20">2024.05.20</time><span aria-hidden="true">—</span><time datetime="2024-11-29">2024.11.29</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="16"><a class="timeline-link" href="projects.html#project-16"><div class="timeline-copy"><h4>기상·태그 상태 관제</h4><p>기상 연동·태그 표시 기준 개선</p></div><span class="timeline-period"><time datetime="2024-02-06">2024.02.06</time><span aria-hidden="true">—</span><time datetime="2024-04-26">2024.04.26</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+            </ol>
+          </section>
+          <section class="timeline-year" aria-labelledby="timeline-year-2023">
+            <div class="timeline-year-label"><h3 id="timeline-year-2023">2023</h3><span>02 RECORDS</span></div>
+            <ol class="timeline-items">
+              <li class="timeline-item" data-project="02"><a class="timeline-link" href="projects.html#project-02"><div class="timeline-copy"><h4>사업장 대피 관리</h4><p>대피 현황·인원 집계·자동 알림 처리</p></div><span class="timeline-period"><time datetime="2023-12-19">2023.12.19</time><span aria-hidden="true">—</span><time datetime="2026-10-19">2026.10.19</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+              <li class="timeline-item" data-project="13"><a class="timeline-link" href="projects.html#project-13"><div class="timeline-copy"><h4>수처리시설 통합 안전관제</h4><p>센터별 관제·위험 알림 연동 개발</p></div><span class="timeline-period"><time datetime="2023-10-12">2023.10.12</time><span aria-hidden="true">—</span><time datetime="2025-08-20">2025.08.20</time></span><span class="timeline-arrow" aria-hidden="true">↗</span></a></li>
+            </ol>
+          </section>
         </div>
+        <!-- EXPERIENCE_TIMELINE:END -->
       </div>
     </section>
 

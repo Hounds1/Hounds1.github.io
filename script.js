@@ -31,7 +31,7 @@
         opacity: [0, 1], y: [18, 0]
       }, { duration: .8, delay: motion.stagger(.08) });
     }, { amount: .2 });
-    motion.inView('.experience-header, .section-heading, .career-entry', element => {
+    motion.inView('.experience-header, .section-heading, .timeline-item', element => {
       animate(element, { opacity: [0, 1], y: [22, 0] });
     }, { amount: .35 });
     motion.inView('.stack-group', element => {
