@@ -1,0 +1,133 @@
+html.has-credits-dialog { overflow: hidden; }
+.credits-dialog {
+  width: min(780px, calc(100% - 48px));
+  max-width: none;
+  max-height: 90dvh;
+  padding: 0;
+  border: 1px solid #424a55;
+  border-radius: 18px;
+  margin: auto;
+  overflow: hidden;
+  color-scheme: dark;
+  color: #f2f3ee;
+  background: #15191f;
+  font: inherit;
+  box-shadow: 0 32px 120px #0009;
+}
+.credits-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  animation: credits-enter .18s ease-out both;
+}
+.credits-dialog::backdrop { background: #05070bcc; backdrop-filter: blur(8px); }
+.credits-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 34px 24px;
+  background: #15191f;
+  border-bottom: 1px solid #333c47;
+}
+.credits-heading { min-width: 0; }
+.credits-kicker { margin: 0 0 9px; color: #94abc4; font-size: 10px; line-height: 1.5; letter-spacing: .16em; }
+.credits-heading h2 { margin: 0; font-size: 30px; font-weight: 540; line-height: 1.2; letter-spacing: -.045em; }
+.credits-close {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-width: 68px;
+  min-height: 42px;
+  padding: 9px 13px;
+  border: 1px solid #434e5b;
+  border-radius: 7px;
+  background: transparent;
+  color: #d9e2ed;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.credits-close:hover { background: #b7cbe80c; border-color: #8b9eb6; color: #fff; }
+.credits-dialog :focus-visible { outline: 2px solid #b7cbe8; outline-offset: 4px; }
+.credits-heading h2:focus { outline: none; }
+.credits-body {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding: 26px 34px 32px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scrollbar-color: #526170 #15191f;
+}
+.credits-intro { margin: 0 0 30px; color: #b4beca; font-size: 14px; line-height: 1.8; }
+.credits-section + .credits-section { margin-top: 30px; }
+.credits-section-title { margin: 0 0 3px; color: #93abc2; font-size: 11px; font-weight: 550; line-height: 1.6; letter-spacing: .08em; }
+.credits-entry { min-width: 0; padding: 19px 0 21px; border-bottom: 1px solid #303943; }
+.credits-entry-top { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 9px 18px; }
+.credits-entry-top h4 { margin: 0; color: #eaf0f5; font-size: 18px; font-weight: 550; line-height: 1.5; letter-spacing: -.025em; }
+.credits-entry-top h4 > span { margin-left: 5px; color: #929eac; font-size: 12px; font-weight: 450; letter-spacing: 0; }
+.credits-license { flex-shrink: 0; padding: 3px 8px; border: 1px solid #465566; border-radius: 5px; color: #b9ccdf; font-size: 10px; line-height: 1.5; white-space: nowrap; }
+.credits-description { margin: 9px 0 0; color: #b6c0cc; font-size: 13px; line-height: 1.8; }
+.credits-owner { margin: 8px 0 0; color: #929eac; font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
+.credits-links { display: flex; flex-wrap: wrap; gap: 9px 20px; margin-top: 13px; }
+.credits-links a { color: #c1d4e8; font-size: 12px; line-height: 1.7; text-decoration: underline; text-decoration-color: #7e99b45c; text-underline-offset: 4px; overflow-wrap: anywhere; }
+.credits-links a:hover { color: #fff; text-decoration-color: currentColor; }
+.credits-detail { min-width: 0; margin-top: 14px; }
+.credits-detail > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 11px 13px;
+  border: 1px solid #384451;
+  border-radius: 6px;
+  color: #b8cadb;
+  background: #11171d;
+  font-size: 12px;
+  line-height: 1.65;
+  list-style: none;
+  cursor: pointer;
+}
+.credits-detail > summary::-webkit-details-marker { display: none; }
+.credits-detail > summary::after { content: "+"; flex-shrink: 0; color: #90a9bf; font-size: 17px; line-height: 1; }
+.credits-detail > summary:hover { border-color: #627c94; color: #e0eaf4; }
+.credits-detail[open] > summary { border-radius: 6px 6px 0 0; border-bottom-color: #303d49; }
+.credits-detail[open] > summary::after { content: "−"; }
+.credits-license-content { min-width: 0; padding: 17px; border: 1px solid #384451; border-top: 0; border-radius: 0 0 6px 6px; background: #11171d; }
+.credits-license-content pre { margin: 0; color: #b7c4d1; font: 11px/1.9 ui-monospace, SFMono-Regular, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; word-break: normal; }
+.credits-license-content p { margin: 0; color: #aab9c8; font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.credits-license-content a { color: #c1d4e8; text-decoration: underline; text-underline-offset: 3px; }
+.credits-license-content button { padding: 6px 9px; margin-top: 10px; border: 1px solid #52687c; border-radius: 4px; background: transparent; color: #d4e2ee; font: inherit; font-size: 12px; cursor: pointer; }
+.credits-license-content button + a { display: inline-block; margin-left: 14px; font-size: 12px; }
+.credits-originals { margin-top: 25px; padding: 18px 20px; border-left: 2px solid #66839a; background: #9bbbd308; color: #afbdca; font-size: 13px; line-height: 1.8; }
+.credits-originals h3, .credits-originals h4 { margin: 0 0 8px; color: #d3dfeb; font-size: 14px; font-weight: 550; }
+.credits-originals p + p { margin-top: 9px; }
+.credits-record { margin-top: 25px; }
+.credits-trademark { margin: 23px 0 0; color: #97a5b4; font-size: 11px; line-height: 1.85; overflow-wrap: anywhere; }
+.credits-trademark a { color: #b8ccdf; text-decoration: underline; text-underline-offset: 3px; }
+@keyframes credits-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 540px) {
+  .credits-dialog { width: calc(100% - 32px); max-height: calc(100dvh - 32px); border-radius: 13px; }
+  .credits-header { padding: 20px 20px 18px; gap: 13px; }
+  .credits-heading h2 { font-size: 24px; }
+  .credits-kicker { margin-bottom: 7px; font-size: 9px; }
+  .credits-close { min-width: 58px; min-height: 40px; padding: 8px 10px; font-size: 11px; }
+  .credits-body { padding: 21px 20px 25px; }
+  .credits-intro { margin-bottom: 24px; font-size: 13px; }
+  .credits-entry-top h4 { font-size: 17px; }
+  .credits-entry { padding-block: 17px; }
+  .credits-license-content { padding: 13px; }
+  .credits-originals { padding: 15px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .credits-dialog[open] { animation: none; }
+}
+.motion-reduced .credits-dialog[open] { animation: none; }
