@@ -1,11 +1,8 @@
 (() => {
-  const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
   const toggle = document.getElementById('motion-toggle');
   const motion = window.Motion;
-  let savedChoice;
-  try { savedChoice = sessionStorage.getItem('portfolio-motion'); } catch (_) { /* Local file storage can be unavailable. */ }
-  let reduced = savedChoice ? savedChoice === 'reduced' : preference.matches;
-  let userPreference = !!savedChoice;
+  // Start each page in playback mode; the header toggle pauses this visit.
+  let reduced = false;
   const animations = new Set();
   const ease = [.22, 1, .36, 1];
 
@@ -118,13 +115,6 @@
   }
   toggle.addEventListener('click', () => {
     reduced = !reduced;
-    userPreference = true;
-    try { sessionStorage.setItem('portfolio-motion', reduced ? 'reduced' : 'full'); } catch (_) { /* Keep the in-page preference. */ }
-    updatePreference();
-  });
-  preference.addEventListener('change', event => {
-    if (userPreference) return;
-    reduced = event.matches;
     updatePreference();
   });
   updatePreference();

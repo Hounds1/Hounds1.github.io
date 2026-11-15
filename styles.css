@@ -14,8 +14,10 @@
   --line: #30343b;
   --accent: #b7cbe8;
   --ease: cubic-bezier(.22, 1, .36, 1);
+  --header-height: 100px;
+  --page-gutter: 64px;
   font-family: "Portfolio Pretendard", "Pretendard", sans-serif;
-  scroll-padding-top: 34px;
+  scroll-padding-top: calc(var(--header-height) + 24px);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { scrollbar-gutter: stable; }
@@ -27,11 +29,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 [hidden] { display: none !important; }
 ::selection { background: #b7cbe8; color: #101216; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
-.page-width { width: min(1200px, calc(100% - 128px)); margin-inline: auto; }
+.page-width { width: min(1200px, calc(100% - 2 * var(--page-gutter))); margin-inline: auto; }
 .skip-link { position: fixed; top: 10px; left: 10px; padding: 12px; z-index: 20; background: var(--background); transform: translateY(-160%); }
 .skip-link:focus { transform: none; }
 
-.site-header { display: flex; align-items: center; gap: 42px; height: 100px; position: relative; z-index: 2; }
+.site-header { display: flex; align-items: center; gap: 42px; width: 100%; height: var(--header-height); padding-inline: max(var(--page-gutter), calc((100% - 1200px) / 2)); position: sticky; top: 0; z-index: 10; background: #101216ed; border-bottom: 1px solid #ffffff0a; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
 .wordmark { margin-right: auto; font-size: 24px; font-weight: 680; letter-spacing: -.05em; }
 .wordmark-dot { color: var(--accent); }
 .site-header nav { display: flex; align-items: center; gap: 34px; font-size: 14px; }
@@ -121,7 +123,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero-inner { min-height: 780px; padding-top: 95px; }
 }
 @media (max-width: 1050px) {
-  .page-width { width: calc(100% - 80px); }
+  :root { --page-gutter: 40px; }
   .hero-copy { max-width: 76%; }
   .hero-inner { min-height: 650px; }
   .experience-body { gap: 35px; }
@@ -131,8 +133,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .tech-item { min-width: 81px; padding-inline: 8px; }
 }
 @media (max-width: 800px) {
-  .page-width { width: calc(100% - 48px); }
-  .site-header { gap: 24px; height: 85px; }
+  :root { --page-gutter: 24px; --header-height: 85px; }
+  .site-header { gap: 24px; }
   .site-header nav { gap: 19px; }
   .motion-label { display: none; }
   .hero-inner { padding-top: 75px; min-height: 640px; }
@@ -148,8 +150,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .stack-group-copy p { max-width: 100%; }
 }
 @media (max-width: 540px) {
-  .page-width { width: calc(100% - 36px); }
-  .site-header { gap: 17px; height: 77px; }
+  :root { --page-gutter: 18px; --header-height: 77px; }
+  .site-header { gap: 17px; }
   .wordmark { font-size: 20px; }
   .site-header nav { font-size: 12px; gap: 15px; }
   .hero-inner { min-height: 640px; padding-top: 83px; }
