@@ -107,10 +107,12 @@
     if (project.category === 'engineering') {
       return `<div class="project-art engineering-art" aria-hidden="true">
         <div class="engineering-blueprint">
-          <div class="blueprint-top"><span>SHARED BACKEND</span><span>02 MODULES</span></div>
+          <div class="blueprint-top"><span>SHARED BACKEND</span><span>04 AREAS</span></div>
           <div class="blueprint-module"><span class="module-index">01</span><div><strong>운영 설정</strong><p>동적 조회 · 버전 관리 · 비밀값 보호</p></div><span class="module-symbol">{ }</span></div>
-          <div class="blueprint-module"><span class="module-index">02</span><div><strong>초기화 제어</strong><p>Redis 잠금 · 소유자 확인 · 실패 복구</p></div><span class="module-symbol">⇄</span></div>
-          <div class="blueprint-bottom"><span>Runtime settings</span><span>Initialization</span></div>
+          <div class="blueprint-module"><span class="module-index">02</span><div><strong>데이터·통신 도구</strong><p>응답 변환 · 요청 검증 · 오류 구분</p></div><span class="module-symbol">↔</span></div>
+          <div class="blueprint-module"><span class="module-index">03</span><div><strong>정보·화면·공통 조회</strong><p>정보 제공 · 화면 설정 · 알림 조치</p></div><span class="module-symbol">≡</span></div>
+          <div class="blueprint-module"><span class="module-index">04</span><div><strong>초기화·실행 제어</strong><p>공유 잠금 · 소유자 확인 · 실패 복구</p></div><span class="module-symbol">⇄</span></div>
+          <div class="blueprint-bottom"><span>Reusable tools</span><span>Consistent operations</span></div>
         </div>
       </div>`;
     }
@@ -246,16 +248,21 @@
 
   function projectDetail(project, next) {
     const detail = project.detail;
+    const scope = detail.scope;
     return `
-      <header class="modal-cover">
+      <header class="modal-cover${scope ? ' modal-cover-scoped' : ''}">
         <div class="modal-intro">
           <p class="modal-category">${escape(categories[project.category])}<span aria-hidden="true">/</span> ${project.category === 'engineering' ? 'ENGINEERING' : `PROJECT ${project.id}`}</p>
           <h2 id="dialog-title" class="modal-title" tabindex="-1">${escape(project.shortTitle)}</h2>
           ${detail.context ? `<p class="modal-context">${escape(detail.context)}</p>` : ''}
-          <p id="dialog-lead" class="modal-lead">${escape(detail.lead)}</p>
+          ${scope ? `<section class="modal-scope" aria-labelledby="scope-title">
+            <div class="scope-heading"><h3 id="scope-title">담당 범위</h3><span>${escape(scope.kind)}</span></div>
+            <p id="dialog-lead" class="scope-summary">${escape(scope.summary)}</p>
+            ${scope.note ? `<p class="scope-note"><span>참고</span>${escape(scope.note)}</p>` : ''}
+          </section>` : `<p id="dialog-lead" class="modal-lead">${escape(detail.lead)}</p>`}
           <dl class="modal-facts">
             <div><dt>개발·개선</dt><dd>${escape(project.period)}</dd></div>
-            <div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>
+            ${scope ? '' : `<div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>`}
           </dl>
           ${detail.planned?.length ? `<p class="modal-planned"><span>예정</span>${detail.planned.map(escape).join(' · ')}</p>` : ''}
           ${detail.stack?.length ? `<ul class="modal-stack" aria-label="사용 기술">${detail.stack.map(tech => `<li>${escape(tech)}</li>`).join('')}</ul>` : ''}
@@ -265,7 +272,7 @@
       </header>
       <section class="modal-section contribution-section" aria-labelledby="contributions-title">
         <div class="modal-section-heading"><h3 id="contributions-title">내가 한 일</h3><span>MY CONTRIBUTION</span></div>
-        <ul class="contribution-list">${detail.contributions.map((item, index) => `<li><span class="contribution-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4><p>${escape(item.body)}</p></li>`).join('')}</ul>
+        <ul class="contribution-list${detail.contributions.length > 3 ? ' contribution-list-grid' : ''}">${detail.contributions.map((item, index) => `<li><span class="contribution-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4><p>${escape(item.body)}</p></li>`).join('')}</ul>
       </section>
       ${window.portfolioSimulations?.render(project.id) || ''}
       ${window.portfolioLogDemo?.render(project.id) || ''}

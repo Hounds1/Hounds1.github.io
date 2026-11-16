@@ -117,6 +117,14 @@
 .modal-title:focus { outline: none; }
 .modal-context { color: #afbdc9; font-size: 13px; line-height: 1.75; margin-top: 12px; word-break: keep-all; overflow-wrap: anywhere; }
 .modal-lead { font-size: 18px; line-height: 1.65; color: #e1e7ee; margin-top: 18px; letter-spacing: -.02em; word-break: keep-all; overflow-wrap: anywhere; }
+.modal-scope { margin-top: 23px; }
+.scope-heading { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.scope-heading h3 { color: #b8cbbf; font-size: 12px; line-height: 1.5; font-weight: 550; }
+.scope-heading > span { padding: 3px 8px; border: 1px solid #b5d6c72b; border-radius: 4px; color: #c2d8cd; background: #a9cab60a; font-size: 10px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
+.scope-summary { margin-top: 10px; color: #e5ece8; font-size: 17px; line-height: 1.75; letter-spacing: -.02em; word-break: keep-all; overflow-wrap: anywhere; }
+.scope-note { display: grid; grid-template-columns: auto 1fr; gap: 10px; margin-top: 12px; color: #b8c1bd; font-size: 12px; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
+.scope-note > span { color: #91a39b; }
+.modal-cover-scoped .modal-facts { margin-top: 19px; }
 .modal-facts { display: grid; gap: 9px; margin-top: 24px; font-size: 12px; line-height: 1.6; }
 .modal-facts > div { display: grid; grid-template-columns: 65px 1fr; gap: 12px; }
 .modal-facts dt { color: #93a3b6; }
@@ -141,6 +149,8 @@
 .contribution-list li { position: relative; padding-right: 24px; }
 .contribution-list li + li { border-left: 1px solid #343d49; padding-left: 24px; }
 .contribution-list li:last-child { padding-right: 0; }
+.contribution-list-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 32px; }
+.contribution-list-grid li, .contribution-list-grid li + li { padding: 16px 0 0; border-left: 0; border-top: 1px solid #343d49; }
 .contribution-number { color: #819ab8; font-size: 10px; font-variant-numeric: tabular-nums; }
 .contribution-list h4 { font-size: 16px; font-weight: 550; letter-spacing: -.025em; line-height: 1.5; margin-top: 8px; }
 .contribution-list p { color: #aebaca; font-size: 14px; line-height: 1.7; margin-top: 7px; word-break: keep-all; overflow-wrap: anywhere; }
@@ -248,6 +258,8 @@ html.motion-reduced .flow-packet { animation: none !important; }
   .modal-art .project-art { min-height: 0; height: auto; aspect-ratio: 2.8; }
   .contribution-list { grid-template-columns: 1fr; gap: 16px; }
   .contribution-list li, .contribution-list li + li { padding: 0 0 0 30px; border-left: 0; }
+  .contribution-list-grid { grid-template-columns: 1fr; }
+  .contribution-list-grid li, .contribution-list-grid li + li { padding: 0 0 0 30px; border-top: 0; }
   .contribution-number { position: absolute; left: 0; top: 5px; }
   .contribution-list h4 { margin-top: 0; }
   .contribution-list p { margin-top: 4px; }
@@ -288,6 +300,7 @@ html.motion-reduced .flow-packet { animation: none !important; }
   .modal-toolbar #close-dialog { gap: 8px; padding-left: 8px; font-size: 12px; }
   .modal-title { font-size: 29px; }
   .modal-lead { font-size: 17px; }
+  .scope-summary { font-size: 16px; }
   .modal-facts { margin-top: 20px; }
   .modal-art .project-art { aspect-ratio: 2.5; }
   .modal-art .engineering-art { aspect-ratio: auto; }

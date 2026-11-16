@@ -96,7 +96,7 @@
         for (const person of ['A', 'B']) {
           const response = state.accepted === person ? 'accepted' : state.attempted.has(person) ? 'rejected' : 'waiting';
           people.get(person).dataset.response = response;
-          setField(`employee-${person.toLowerCase()}`, response === 'accepted' ? '첫 응답 확정' : response === 'rejected' ? '후속 응답 거절' : '아직 응답 전');
+          setField(`employee-${person.toLowerCase()}`, response === 'accepted' ? '첫 응답 확정' : response === 'rejected' ? '후속 응답 정리' : '아직 응답 전');
           buttons.get(`respond-${person.toLowerCase()}`).setAttribute('aria-disabled', String(state.attempted.has(person)));
         }
       }
@@ -134,8 +134,8 @@
           addEvent(`${person} 직원의 첫 응답 확정 · 추가 전파 종료`);
           message = `${person} 직원의 응답으로 호출을 확정하고 추가 전파를 종료했습니다. 다른 직원의 응답도 눌러보세요.`;
         } else {
-          addEvent(`${person} 직원의 후속 응답 거절 · ${state.accepted} 직원 확정 유지`);
-          message = `${person} 직원의 후속 응답은 거절됩니다. ${state.accepted} 직원으로 확정된 호출과 전파 종료 상태는 유지됩니다.`;
+          addEvent(`${person} 직원의 후속 응답 정리 · ${state.accepted} 직원 확정 유지`);
+          message = `${person} 직원의 후속 응답을 정리합니다. ${state.accepted} 직원으로 확정된 호출과 전파 종료 상태는 유지됩니다.`;
         }
       } else return;
       update();
