@@ -1957,7 +1957,7 @@ window.portfolioProjects = [
   {
     "id": "20",
     "shortTitle": "Bullseye Core",
-    "hook": "Linux 자원 압력을 진단하고 원인 후보와 판단 근거를 함께 제공",
+    "hook": "Linux 자원 압력과 계측 최신성을 구분하고 메모리 원인 후보를 추적",
     "category": "personal",
     "tags": [
       "Linux 진단",
@@ -1966,8 +1966,8 @@ window.portfolioProjects = [
     ],
     "period": "2026.09 — 진행 중",
     "detail": {
-      "context": "CPU·메모리·I/O 지표와 Linux PSI를 읽어 호스트의 자원 압력과 원인 후보를 알려주는 독립 실행형 진단 에이전트입니다.",
-      "lead": "Linux 지표 수집부터 지속 압력 진단, 워크로드 원인 추정과 상태 파일 발행까지 에이전트의 처리 흐름을 구현했습니다.",
+      "context": "CPU·메모리·I/O 지표와 Linux PSI로 자원 압력을 진단하고, 메모리 압력의 워크로드 원인 후보를 추적하는 독립 실행형 Linux 에이전트입니다.",
+      "lead": "지표 수집·지속 압력 진단부터 메모리 원인 추정, 계측 최신성 판단과 JSON 발행 복구까지 구현했습니다.",
       "role": "개인 개발 · 수집·진단·상태 발행 설계 및 구현",
       "planned": [
         "Voice Pack",
@@ -1987,53 +1987,53 @@ window.portfolioProjects = [
           "url": "https://github.com/Hounds1/Bullseye-Core"
         },
         {
-          "label": "PR #1 · 초기 진단 파이프라인",
-          "url": "https://github.com/Hounds1/Bullseye-Core/pull/1"
+          "label": "PR #5 · 상태 최신성과 발행 복구",
+          "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
         },
         {
-          "label": "PR #2 · Linux 압력 진단",
-          "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
+          "label": "PR #6 · 메모리 원인 재평가",
+          "url": "https://github.com/Hounds1/Bullseye-Core/pull/6"
         }
       ],
       "contributions": [
         {
-          "title": "수집·진단·발행 경계 설계",
-          "body": "Java 멀티모듈을 구성하고 Linux 지표 수집, 메모리 기반 관측 구간, 진단과 상태 발행의 실행 책임을 나눴습니다."
+          "title": "압력 진단과 계측 최신성",
+          "body": "리소스별 사용률·PSI·지속 시간으로 압력을 판단하고, 관측 공백과 데이터 만료를 진단 등급과 별도로 처리했습니다."
         },
         {
-          "title": "리소스별 압력 판단",
-          "body": "CPU 사용률·메모리 사용률과 PSI를 리소스 특성에 맞게 해석하고, 지속 시간·상승 추세·복구 조건을 진단에 반영했습니다."
+          "title": "메모리 워크로드 원인 추적",
+          "body": "cgroup의 사용량·증가 속도·PSI·메모리 이벤트를 비교하고, 원인 후보의 점수·신뢰도·수집 범위를 함께 제공했습니다."
         },
         {
-          "title": "워크로드 추적과 상태 제공",
-          "body": "cgroup v2로 압력 원인 후보를 추정하고, 판단 근거·상태·워크로드를 외부 DB 없이 JSON 파일로 제공했습니다."
+          "title": "스냅샷 갱신과 발행 복구",
+          "body": "같은 등급에서도 매 평가의 현재 값을 JSON에 갱신하고, 원자적 파일 교체와 최신 스냅샷 우선 재시도로 발행 실패를 처리했습니다."
         }
       ],
       "cases": [
         {
-          "title": "높은 사용률과 실제 자원 압력 구분",
-          "problem": "순간적인 사용률 상승이나 메모리 페이지 캐시만으로 위험을 판단하면 실제 자원 대기 상태와 구분하기 어렵습니다.",
-          "action": "CPU는 사용률과 복구 조건을 중심으로 PSI를 보조 근거로 사용했습니다. 메모리는 높은 사용률과 PSI를 함께 확인하고, I/O는 지속되는 PSI 대기를 기준으로 판단했습니다.",
-          "change": "지속 시간과 상승 추세를 반영해 리소스별 상태를 판단하고, 가장 높은 활성 심각도를 호스트 상태에 반영합니다.",
+          "title": "관측 공백을 정상 복구로 오인하지 않도록",
+          "problem": "순간적인 사용률 상승과 지속 압력을 구분해야 했고, 수집이 끊긴 시간을 정상 상태나 복구 조건의 유지 시간으로 계산해서도 안 됐습니다.",
+          "action": "사용률·PSI·상승 추세를 리소스별 규칙으로 판단했습니다. 관측 간격이 샘플링 주기의 두 배를 넘으면 지속 시간 계산을 끊고, 시작 대기·최신·만료 상태를 INITIALIZING·FRESH·STALE로 구분했습니다.",
+          "change": "수집 공백에서는 이전 진단을 유지합니다. 현재 계측값은 observations, 진단 근거는 evidence로 분리해 값의 최신성과 압력 상태를 함께 확인할 수 있습니다.",
           "diagram": {
             "kind": "sequence",
-            "summary": "Linux 사용률과 PSI를 수집하고 관측 구간의 지속 시간·추세를 분석한 뒤 리소스별 진단 결과 중 가장 높은 심각도를 호스트 상태로 선택합니다.",
+            "summary": "사용률과 PSI를 수집한 뒤 관측 간격과 데이터 최신성을 확인합니다. 연속 관측 구간의 압력·복구 조건을 판단하고, 현재 계측값과 기존 진단 근거를 구분해 제공합니다.",
             "steps": [
               {
                 "label": "Linux 지표 수집",
                 "detail": "사용률·PSI 대기 지표"
               },
               {
-                "label": "관측 구간 분석",
-                "detail": "지속 시간·상승 추세"
+                "label": "관측 연속성 확인",
+                "detail": "시작 대기·최신·만료 구분"
               },
               {
                 "label": "리소스별 규칙",
-                "detail": "CPU·메모리·I/O·복구 조건"
+                "detail": "지속 압력·상승 추세·복구 조건"
               },
               {
-                "label": "호스트 상태 결정",
-                "detail": "가장 높은 활성 심각도"
+                "label": "현재 값과 진단 분리",
+                "detail": "observations · evidence"
               }
             ]
           },
@@ -2043,65 +2043,77 @@ window.portfolioProjects = [
               "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
             },
             {
+              "label": "PR #5 · 관측 공백과 최신성",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
+            },
+            {
               "label": "README · Diagnostic policy",
               "url": "https://github.com/Hounds1/Bullseye-Core#diagnostic-policy"
             }
           ]
         },
         {
-          "title": "탐색 범위를 제한하고 불확실한 원인은 보류",
-          "problem": "cgroup을 제한 없이 탐색하면 진단 작업 자체의 부담이 커질 수 있고, 점수가 비슷한 후보 중 하나를 원인으로 단정하기 어렵습니다.",
-          "action": "탐색 깊이와 그룹 수를 제한하고 발견한 대상을 캐시했습니다. 별도 실행기에서 주기적으로 샘플링해 리소스별 압력 점수를 비교하고, 후보 간 차이가 불명확하면 UNKNOWN으로 유지했습니다.",
-          "change": "정해진 탐색 범위 안에서 워크로드를 추적하며, 근거가 부족한 경우에는 특정 워크로드를 억지로 원인으로 지정하지 않습니다.",
+          "title": "메모리 원인 후보를 근거와 함께 재평가",
+          "problem": "메모리 압력이 계속되는 동안 원인 워크로드가 바뀔 수 있고, 일부 cgroup만 읽은 결과를 확실한 원인처럼 보여주면 판단을 잘못 이끌 수 있습니다.",
+          "action": "탐색 깊이·그룹 수를 제한하고, 메모리 HIGH 진입 시와 유지 중 기본 30초마다 원인을 재평가했습니다. 관측 간격을 반영한 증가 속도와 사용량·PSI·이벤트 점수를 계산하며, CRITICAL에서는 최신 계측이 있는 매 평가마다 확인합니다.",
+          "change": "후보와 함께 항목별 점수·수집 시각·성공 및 실패 범위를 제공합니다. 후보 차이가 작거나 수집이 불완전하면 LOW로 제한하고, 데이터가 부족하면 원인 미확정 상태를 명시합니다.",
           "diagram": {
             "kind": "branch",
-            "summary": "깊이와 그룹 수를 제한해 발견한 cgroup을 캐시하고 별도 샘플링한 뒤, 압력 점수 차이가 뚜렷하면 원인 후보를 표시하고 불명확하면 UNKNOWN을 유지합니다.",
+            "summary": "메모리 HIGH 진입과 주기적 재평가 시 제한된 cgroup 범위를 수집합니다. 사용량·증가 속도·PSI·이벤트 점수로 후보를 비교하고, 수집 완전성과 후보 차이에 따라 신뢰도를 결정합니다.",
             "start": {
-              "label": "cgroup 대상 수집",
-              "detail": "탐색 제한·캐시·별도 샘플링"
+              "label": "메모리 압력 재평가",
+              "detail": "HIGH 진입·유지 중 주기적 수집"
             },
             "gate": {
-              "label": "압력 점수 비교",
-              "detail": "후보 사이 구분 가능 여부"
+              "label": "점수·수집 범위 확인",
+              "detail": "사용량·증가 속도·PSI·이벤트"
             },
             "paths": [
               {
-                "when": "근거가 구분됨",
-                "label": "원인 후보 표시",
-                "detail": "워크로드·판단 근거 제공",
+                "when": "수집 완료 · 후보 구분 가능",
+                "label": "후보와 근거 제공",
+                "detail": "점수와 후보 차이로 신뢰도 결정",
                 "tone": "keep"
               },
               {
-                "when": "후보 차이 불명확",
-                "label": "UNKNOWN 유지",
-                "detail": "원인 판단 보류",
+                "when": "일부 누락 · 후보 차이 작음",
+                "label": "신뢰도 LOW 제한",
+                "detail": "수집 범위와 불확실성 표시",
                 "tone": "muted"
               }
             ]
           },
           "sources": [
             {
-              "label": "PR #2 · cgroup 워크로드 추적",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
+              "label": "PR #4 · 메모리 원인 추적",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/4"
+            },
+            {
+              "label": "PR #6 · 재평가와 판단 근거",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/6"
+            },
+            {
+              "label": "README · Memory attribution evidence",
+              "url": "https://github.com/Hounds1/Bullseye-Core#memory-attribution-evidence"
             }
           ]
         },
         {
-          "title": "진단 결과를 JSON 상태 파일로 전달",
-          "problem": "진단 상태를 읽는 쪽에 작성 중인 JSON이 노출되지 않도록 하고, 발행이나 일부 수집 실패가 호스트 지표 수집 전체로 번지지 않게 해야 했습니다.",
-          "action": "상태를 임시 파일에 쓴 뒤 flush하고 현재 파일을 원자적으로 교체했습니다. 발행·PSI·개별 cgroup 실패를 호스트 지표 수집에서 분리하고, 심각도·리소스·상태·주요 워크로드가 바뀔 때만 버전을 갱신했습니다.",
-          "change": "기본 경로 /run/bullseye/state.json에서 완성된 현재 상태를 읽을 수 있습니다. 버전은 의미 있는 상태 전환을 나타내며, 외부 프로그램이 이 파일을 읽어 연동할 수 있습니다.",
+          "title": "같은 등급에서도 최신 스냅샷을 발행",
+          "problem": "진단 등급이 같아도 현재 계측값과 평가 시각은 바뀝니다. 파일 발행이 한 번 실패한 뒤 다음 상태 전환까지 갱신이 멈추는 경우도 처리해야 했습니다.",
+          "action": "완료된 매 평가마다 스냅샷을 갱신하고 임시 파일 작성·flush·원자적 교체로 발행했습니다. 실패하면 1초마다 재시도하고, 대기 중인 값은 새 스냅샷으로 교체해 오래된 상태가 뒤늦게 덮이지 않도록 했습니다.",
+          "change": "version·since는 의미 있는 상태 변화에만 갱신하고 evaluatedAt·observations는 매 평가를 반영합니다. 읽는 쪽은 버전뿐 아니라 평가 시각의 경과와 관측 상태로 최신성을 확인할 수 있습니다.",
           "diagram": {
             "kind": "sequence",
-            "summary": "진단 상태의 의미 있는 변경을 확인해 버전을 정하고 임시 파일을 작성·flush한 뒤 현재 상태 JSON을 원자적으로 교체합니다.",
+            "summary": "매 평가의 현재 계측값과 진단 상태로 스냅샷을 구성하고, 의미 있는 상태 전환에만 버전을 올립니다. 임시 파일을 작성·flush한 뒤 원자적으로 교체하며 발행 실패 시 최신 대기 스냅샷으로 재시도합니다.",
             "steps": [
               {
-                "label": "진단 상태 결정",
-                "detail": "리소스·워크로드·판단 근거"
+                "label": "매 평가 스냅샷 구성",
+                "detail": "현재 계측값·진단 근거 구분"
               },
               {
-                "label": "상태 변화 확인",
-                "detail": "의미 있는 변경 시 버전 증가"
+                "label": "버전과 평가 시각 분리",
+                "detail": "같은 버전에도 최신 값 갱신"
               },
               {
                 "label": "임시 파일 작성",
@@ -2109,14 +2121,14 @@ window.portfolioProjects = [
               },
               {
                 "label": "현재 파일 교체",
-                "detail": "완성된 스냅샷을 원자적 반영"
+                "detail": "원자적 반영·실패 시 최신 값 재시도"
               }
             ]
           },
           "sources": [
             {
-              "label": "PR #1 · 상태 발행 파이프라인",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/1"
+              "label": "PR #5 · 최신 스냅샷과 발행 복구",
+              "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
             },
             {
               "label": "README · State output",
