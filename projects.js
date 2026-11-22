@@ -276,7 +276,7 @@
       ${tabs.map((tab, index) => `<button type="button" role="tab" id="${prefix}-tab-${tab.id}" aria-controls="${prefix}-${tab.id}" aria-selected="${index === 0}" tabindex="${index === 0 ? 0 : -1}" data-component-tab="${tab.id}"><strong>${escape(tab.title)}</strong><span>${escape(tab.subtitle)}</span></button>`).join('')}
     </div>
     ${components.map((component, componentIndex) => `<section class="component-panel" role="tabpanel" tabindex="0" id="${prefix}-${component.id}" aria-labelledby="${prefix}-tab-${component.id}" ${componentIndex ? 'hidden' : ''}>
-      <header class="component-intro"><div><p class="component-eyebrow">${escape(component.name)}</p><h3>${escape(component.subtitle)}</h3><p>${escape(component.summary)}</p></div><div class="component-scope"><h4>직접 구현한 범위</h4><ul>${component.scope.map(item => `<li>${escape(item)}</li>`).join('')}</ul></div></header>
+      <header class="component-intro"><div><p class="component-eyebrow">${escape(component.name)}</p><h3>${escape(component.subtitle)}</h3><p>${escape(component.summary)}</p></div><div class="component-scope"><h4>주요 기능</h4><ul>${component.scope.map(item => `<li>${escape(item)}</li>`).join('')}</ul></div></header>
       <div class="case-studies">${cases.map((item, index) => item.component === component.id ? renderCase(project, item, index) : '').join('')}</div>
     </section>`).join('')}
     <section class="component-panel replay-panel" role="tabpanel" tabindex="0" id="${prefix}-replay" aria-labelledby="${prefix}-tab-replay" hidden>
@@ -315,7 +315,7 @@
           </section>` : `<p id="dialog-lead" class="modal-lead">${escape(detail.lead)}</p>`}
           <dl class="modal-facts">
             <div><dt>개발·개선</dt><dd>${escape(project.period)}</dd></div>
-            ${scope ? '' : `<div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>`}
+            ${!scope && detail.role ? `<div><dt>담당</dt><dd>${escape(detail.role)}</dd></div>` : ''}
           </dl>
           ${detail.planned?.length ? `<p class="modal-planned"><span>예정</span>${detail.planned.map(escape).join(' · ')}</p>` : ''}
           ${detail.stack?.length ? `<ul class="modal-stack" aria-label="사용 기술">${detail.stack.map(tech => `<li>${escape(tech)}</li>`).join('')}</ul>` : ''}

@@ -1968,7 +1968,6 @@ window.portfolioProjects = [
     "detail": {
       "context": "Core는 Linux 호스트의 자원 압력과 원인 후보를 진단합니다. UOG (Unified Operations Group)는 여러 Core의 접속을 관리하고 텔레메트리를 수신·보관하는 중앙 서버입니다.",
       "lead": "Core의 지표 수집·원인 추적·JSON 발행과 UOG의 인증된 수신·비동기 보관을 구현했습니다. 느린 원인 조사나 보관소 장애가 앞단의 진단과 수신까지 막지 않도록 경계를 나눴습니다.",
-      "role": "개인 개발 · Core 진단 에이전트 및 UOG 수신·보관 서버 설계·구현",
       "planned": [
         "Voice Pack",
         "진단·운영 기능 확장"
