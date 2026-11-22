@@ -9,11 +9,11 @@
 ## 구성
 
 - `index.html`: 경력 및 기술 스택
-- `projects.html`: 프로젝트 목록과 상세 모달
+- `projects.html`: 프로젝트 목록과 상세 모달, Bullseye Core·UOG·실측 기록 탭
 - `projects-data.js`: 화면에 공개하는 편집된 프로젝트 데이터
 - `project-simulations.js`: 대피·SOS와 직원 호출 시뮬레이션
-- `project-log-demo.js`: Bullseye 진단 로그 타이프라이터 예시
-- `project-state-demo.js`: Bullseye JSON 상태 파일 발행 흐름 예시
+- `project-log-demo.js`: 수집 당시 버전을 표시하는 Bullseye 실측 로그·그래프 재생, tail 형식의 한 줄 출력
+- `project-state-demo.js`: 자원별 JSON 상태와 TCC 전송·UOG 저장 응답을 보여주는 설명용 예시
 - `assets/`, `vendor/`: 로컬 이미지, 아이콘 및 라이브러리
 
 별도 빌드 없이 GitHub Pages의 `main` 브랜치 루트(`/`)에서 게시합니다.

@@ -31,7 +31,8 @@
   function render(projectId) {
     if (projectId !== '20') return '';
     return `<section class="project-log-demo" data-log-demo="20" aria-labelledby="log-demo-title">
-      <header class="log-demo-heading"><div><span class="log-demo-indicator" aria-hidden="true"></span><h3 id="log-demo-title">진단 기록 재생</h3></div><span data-replay-environment>실측 데이터 재생</span></header>
+      <header class="log-demo-heading"><div><span class="log-demo-indicator" aria-hidden="true"></span><h3 id="log-demo-title">Core 진단 기록 재생</h3></div><span data-replay-environment>실측 데이터 재생</span></header>
+      <div class="replay-archive-label"><div><strong>실측 아카이브</strong><span data-replay-capture-label>수집 버전 확인 중</span></div><p>수집 당시의 지표·점수·신뢰도를 그대로 재생합니다.</p></div>
       <div class="replay-scenarios" role="group" aria-label="실측 시나리오 선택"><button type="button" data-replay-scenario="cpu" aria-pressed="true">CPU 부하·복구</button><button type="button" data-replay-scenario="memory" aria-pressed="false">메모리 원인 추적</button></div>
       <div class="replay-loading" data-replay-loading>실측 기록을 불러오는 중입니다.</div>
       <div class="replay-error" data-replay-error hidden><p>실측 기록을 불러오지 못했습니다. 연결 상태를 확인하고 다시 시도해주세요.</p><button type="button" class="replay-retry" data-replay-action="retry">다시 불러오기</button></div>
@@ -45,7 +46,7 @@
         <div class="replay-phase-track" data-replay-phases role="group" aria-label="부하 테스트 단계 선택"></div>
         <div class="replay-controls"><button type="button" class="replay-toggle" data-replay-action="toggle">일시정지</button><button type="button" class="replay-restart" data-replay-action="restart">다시 재생 <span aria-hidden="true">↺</span></button><span class="replay-speed" data-replay-speed>4배속 재생</span></div>
         <div class="replay-scrubber"><input type="range" data-replay-range min="0" max="1" step="1" value="0" aria-label="실측 기록 재생 위치"><output class="replay-clock" data-replay-clock>00:00 / 00:00</output></div>
-        <section class="replay-attribution" data-replay-attribution hidden aria-labelledby="replay-attribution-title"><header><h4 id="replay-attribution-title">메모리 원인 추적</h4><span data-replay-attribution-time>조사 대기</span></header><div class="replay-attribution-head"><strong data-replay-workload>—</strong><span data-replay-confidence></span></div><p data-replay-coverage></p><div class="replay-score-grid" data-replay-scores></div><p class="replay-attribution-note" data-replay-attribution-note></p></section>
+        <section class="replay-attribution" data-replay-attribution hidden aria-labelledby="replay-attribution-title"><header><h4 id="replay-attribution-title">메모리 원인 추적</h4><span data-replay-attribution-time>조사 대기</span></header><div class="replay-attribution-head"><strong data-replay-workload>—</strong><span data-replay-confidence></span></div><p data-replay-coverage></p><p class="replay-score-policy">수집 당시 정책 · 점유 25 / 증가 35 / PSI 30 / 이벤트 10</p><div class="replay-score-grid" data-replay-scores></div><p class="replay-attribution-note" data-replay-attribution-note></p><details class="replay-policy-update"><summary>현재 구현의 메모리 판단 기준</summary><p>현재는 호스트 메모리 점유 최대 65점과 증가 속도 최대 35점으로 기여도를 계산합니다. PSI·제한 이벤트는 보조 근거로 분리하며 점수에 더하지 않습니다. 신뢰도는 첫 후보를 LOW로 두고, 반복 관측·유지 시간·후보 간 점수 차이와 수집 품질을 확인해 높입니다.</p><p>이 기록의 점수와 신뢰도는 수집 당시 결과이며, 현재 정책으로 다시 계산한 값이 아닙니다.</p></details></section>
         <section class="replay-terminal" aria-labelledby="replay-terminal-title">
           <header><h4 id="replay-terminal-title"><span aria-hidden="true">&gt;_</span> 실행 로그</h4><span>실제 출력 · tail 형식</span></header>
           <div class="replay-terminal-output" data-replay-terminal tabindex="0" role="region" aria-label="Bullseye 실제 실행 로그" aria-live="off"><p class="replay-terminal-wait" data-replay-log-wait>첫 로그를 기다리는 중</p><ol data-replay-logs></ol></div>
@@ -53,7 +54,7 @@
         </section>
         <div class="replay-record"><header><h4>상태 전환</h4><span>state.json 요약 · 저장된 진단 근거</span></header><ol class="replay-events" data-replay-events aria-label="실제로 관측한 진단 상태 전환"></ol><p class="replay-observation" data-replay-observation></p></div>
         <p class="replay-source-note"><span data-replay-source-scope></span> 진단 상태와 판단 근거는 Bullseye 상태 파일에서 가져왔으며, 실시간 서버에 연결되지 않습니다.<br><span data-replay-source-version></span></p>
-        <details class="replay-provenance"><summary>수집 환경과 판정 기준</summary><dl class="replay-capture-facts" data-replay-facts></dl><p>전환 사이에는 마지막으로 기록된 진단 상태를 표시합니다. 수치 변화마다 새 진단이 발생한 것은 아닙니다. <span data-replay-provenance-note></span></p></details>
+        <details class="replay-provenance"><summary>수집 환경과 당시 판정 기준</summary><dl class="replay-capture-facts" data-replay-facts></dl><p>전환 사이에는 마지막으로 기록된 진단 상태를 표시합니다. 수치 변화마다 새 진단이 발생한 것은 아닙니다. <span data-replay-provenance-note></span></p></details>
       </div>
       <p class="log-demo-sr-only" data-replay-status role="status" aria-live="polite" aria-atomic="true"></p>
     </section>`;
@@ -116,11 +117,11 @@
     const grid = [0, ceiling / 2, ceiling].map(value => `<line class="replay-gridline" x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}"/><text class="replay-axis-label" x="31" y="${y(value) + 3}" text-anchor="end">${value}%</text>`).join('');
     const axis = [0, .25, .5, .75, 1].map(fraction => `<text class="replay-axis-label" x="${x(fraction * data.capture.durationMs)}" y="169" text-anchor="${fraction === 0 ? 'start' : fraction === 1 ? 'end' : 'middle'}">${clock(fraction * data.capture.durationMs)}</text>`).join('');
     const threshold = data.capture.thresholds?.cpuElevatedPercent;
-    const thresholdLabel = usesDefaultProfile(data.capture) ? '기본 ELEVATED 기준' : '설정된 ELEVATED 기준';
+    const thresholdLabel = usesDefaultProfile(data.capture) ? '당시 기본 ELEVATED 기준' : '수집 당시 ELEVATED 기준';
     const thresholdLine = finite(threshold) && threshold <= ceiling ? `<line class="replay-threshold" x1="${left}" x2="${right}" y1="${y(threshold)}" y2="${y(threshold)}"/><text class="replay-threshold-label" x="${right - 4}" y="${y(threshold) - 5}" text-anchor="end">${thresholdLabel} ${threshold}%</text>` : '';
     const criticalThreshold = data.capture.thresholds?.cpuCriticalPercent;
     const criticalLine = usesDefaultProfile(data.capture) && finite(criticalThreshold) && criticalThreshold > threshold && criticalThreshold <= ceiling
-      ? `<line class="replay-threshold replay-threshold-critical" x1="${left}" x2="${right}" y1="${y(criticalThreshold)}" y2="${y(criticalThreshold)}"/><text class="replay-threshold-label replay-threshold-label-critical" x="${right - 4}" y="${y(criticalThreshold) - 5}" text-anchor="end">기본 CRITICAL 기준 ${criticalThreshold}%</text>`
+      ? `<line class="replay-threshold replay-threshold-critical" x1="${left}" x2="${right}" y1="${y(criticalThreshold)}" y2="${y(criticalThreshold)}"/><text class="replay-threshold-label replay-threshold-label-critical" x="${right - 4}" y="${y(criticalThreshold) - 5}" text-anchor="end">당시 기본 CRITICAL 기준 ${criticalThreshold}%</text>`
       : '';
     const gradual = usesGradualWorkload(data.capture) || isMemory(data.capture);
     const thresholdEntries = isMemory(data.capture) ? [
@@ -133,7 +134,7 @@
       { severity: 'CRITICAL', percent: criticalThreshold, seconds: data.capture.thresholds?.cpuCriticalDurationSeconds },
     ].filter(entry => finite(entry.percent) && entry.percent >= 0 && entry.percent <= ceiling) : [];
     const gradualLines = thresholdEntries.map(entry => `<line class="replay-threshold replay-threshold-${entry.severity.toLowerCase()}" x1="${left}" x2="${right}" y1="${y(entry.percent)}" y2="${y(entry.percent)}"/>`).join('');
-    const legend = gradual ? `<ul class="replay-threshold-legend" aria-label="기본 사용률 기준">${thresholdEntries.map(entry => `<li data-severity="${entry.severity}"><span aria-hidden="true"></span>${entry.severity} ${entry.percent}% · ${finite(entry.seconds) ? `${entry.seconds}초` : '—'}</li>`).join('')}</ul>` : '';
+    const legend = gradual ? `<ul class="replay-threshold-legend" aria-label="수집 당시 기본 사용률 기준">${thresholdEntries.map(entry => `<li data-severity="${entry.severity}"><span aria-hidden="true"></span>${entry.severity} ${entry.percent}% · ${finite(entry.seconds) ? `${entry.seconds}초` : '—'}</li>`).join('')}</ul>` : '';
     const shades = data.phases.map((phase, index) => `<rect class="replay-phase-shade" x="${x(phase.atMs)}" y="${top}" width="${Math.max(0, x(data.phases[index + 1]?.atMs ?? data.capture.durationMs) - x(phase.atMs))}" height="${bottom - top}" opacity="${index % 2 ? '.04' : '.015'}"/>`).join('');
     return {
       x, y,
@@ -306,10 +307,11 @@
       const identified = workload?.status === 'IDENTIFIED';
       const recovered = snapshot?.severity === 'NORMAL' && position > (data.phases.find(item => item.label === 'ramp-down')?.atMs ?? Infinity);
       find('[data-replay-workload]').textContent = recovered ? '정상 복구 · 추적 종료' : identified ? workload.label : '아직 식별된 원인 없음';
-      find('[data-replay-confidence]').textContent = recovered ? 'NORMAL' : identified ? `${workload.confidence} · ${workload.score.toFixed(1)}점` : workload?.status === 'NOT_ATTEMPTED' ? '조사 전' : workload?.status || '관측 대기';
+      find('[data-replay-confidence]').textContent = recovered ? 'NORMAL' : identified ? `당시 신뢰도 ${workload.confidence} · ${workload.score.toFixed(1)}점` : workload?.status === 'NOT_ATTEMPTED' ? '조사 전' : workload?.status || '관측 대기';
       find('[data-replay-attribution-time]').textContent = recovered ? '복구 완료' : finite(workload?.collectedAtMs) ? `마지막 조사 ${clock(workload.collectedAtMs, true)}` : '조사 대기';
       const coverage = workload?.coverage;
       find('[data-replay-coverage]').textContent = recovered ? 'NORMAL 복귀로 원인 후보와 점수를 초기화했습니다.' : coverage ? `${coverage.complete ? '탐색 범위 수집 완료' : '일부 수집'} · ${coverage.collectedGroups}개 성공 / ${coverage.failedGroups}개 실패${coverage.discoveryLimited ? ' · 탐색 제한 도달' : ''}` : '메모리 HIGH 진입부터 cgroup 원인 추적을 실행합니다.';
+      // Historical 2eb264f capture: preserve its recorded policy and values.
       const scoreParts = [['usage', '메모리 점유', 25], ['growth', '증가 속도', 35], ['pressure', '메모리 PSI', 30], ['events', '제한 이벤트', 10]];
       find('[data-replay-scores]').innerHTML = identified ? scoreParts.map(([key, label, limit]) => {
         const value = workload.evidence?.find(item => item.metric === `score.${key}`)?.value;
@@ -356,6 +358,11 @@
       const gradual = usesGradualWorkload(capture);
       const memory = isMemory(capture);
       const label = resourceName(capture);
+      const capturedAt = new Date(capture.startedAt);
+      const captureDate = Number.isFinite(capturedAt.getTime())
+        ? new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(capturedAt)
+        : '수집일 미기록';
+      find('[data-replay-capture-label]').textContent = `${captureDate} KST · Core ${capture.agentRevision?.slice(0, 7) || '버전 미기록'}`;
       find('[data-replay-environment]').textContent = defaultProfile
         ? `실측 데이터 재생 · 격리 Linux VM ${capture.logicalCpus} vCPU`
         : `실측 데이터 재생 · ${capture.environment}`;
@@ -435,7 +442,7 @@
         ['환경', `${capture.environment} · ${capture.logicalCpus} ${defaultProfile ? 'vCPU' : '논리 CPU'}`],
         ['부하 범위', loadRange],
         ['계측과 진단', `그래프는 약 1초 간격의 별도 /proc 계측 · 에이전트는 ${thresholds.samplingIntervalSeconds ?? '—'}초 간격으로 수집·판단`],
-        ['기본 사용률 기준', memory ? `ELEVATED ${thresholds.memoryElevatedUsagePercent}% / ${thresholds.memoryElevatedDurationSeconds}초 · HIGH ${thresholds.memoryHighUsagePercent}% / ${thresholds.memoryHighDurationSeconds}초 · CRITICAL ${thresholds.memoryCriticalUsagePercent}% / ${thresholds.memoryCriticalDurationSeconds}초` : `ELEVATED ${thresholds.cpuElevatedPercent}% / ${thresholds.cpuElevatedDurationSeconds}초 · HIGH ${thresholds.cpuHighPercent}% / ${thresholds.cpuHighDurationSeconds}초 · CRITICAL ${thresholds.cpuCriticalPercent}% / ${thresholds.cpuCriticalDurationSeconds}초`],
+        ['당시 기본 사용률 기준', memory ? `ELEVATED ${thresholds.memoryElevatedUsagePercent}% / ${thresholds.memoryElevatedDurationSeconds}초 · HIGH ${thresholds.memoryHighUsagePercent}% / ${thresholds.memoryHighDurationSeconds}초 · CRITICAL ${thresholds.memoryCriticalUsagePercent}% / ${thresholds.memoryCriticalDurationSeconds}초` : `ELEVATED ${thresholds.cpuElevatedPercent}% / ${thresholds.cpuElevatedDurationSeconds}초 · HIGH ${thresholds.cpuHighPercent}% / ${thresholds.cpuHighDurationSeconds}초 · CRITICAL ${thresholds.cpuCriticalPercent}% / ${thresholds.cpuCriticalDurationSeconds}초`],
         ['PSI 조건', memory ? `some: ELEVATED ${thresholds.memoryElevatedPsiSomePercent}% · HIGH ${thresholds.memoryHighPsiSomePercent}% · CRITICAL some ${thresholds.memoryCriticalPsiSomePercent}% 또는 full ${thresholds.memoryCriticalPsiFullPercent}%. HIGH는 PSI some의 상승도 확인` : `CPU PSI some ${thresholds.cpuPsiCorroborationPercent}% 보강 · HIGH는 지속 구간의 사용률 상승도 확인`],
         ['NORMAL 복귀 기준', memory ? `메모리 ${thresholds.memoryRecoveryUsagePercent}% 이하 · PSI some ${thresholds.memoryRecoveryPsiSomePercent}% 이하 · full ${thresholds.memoryRecoveryPsiFullPercent}% 이하를 각각 ${thresholds.memoryRecoveryDurationSeconds}초 유지` : `CPU ${thresholds.cpuRecoveryPercent}% 이하와 CPU PSI some ${thresholds.cpuPsiRecoveryPercent}% 이하를 각각 ${thresholds.cpuRecoveryDurationSeconds}초 유지`],
         ['소스 기준', `${capture.agentRevision?.slice(0, 7) || '미기록'}${capture.agentWorkingTreeDirty ? ' · 미커밋 변경 포함' : ''}`],

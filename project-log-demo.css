@@ -25,6 +25,11 @@
 .log-demo-heading > span { flex-shrink: 0; color: #a4b7c5; font-family: var(--replay-mono); font-size: 10px; line-height: 1.6; text-align: right; }
 .log-demo-heading > span > span { margin-inline: 6px; opacity: .55; }
 .log-demo-indicator { flex-shrink: 0; width: 7px; height: 7px; border-radius: 50%; background: #82b99f; box-shadow: 0 0 0 3px #82b99f12; }
+.replay-archive-label { margin: 18px 22px 0; padding: 13px 15px; border-left: 2px solid #789b8a; background: #a4c7b508; }
+.replay-archive-label > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 14px; }
+.replay-archive-label strong { color: #c4dbce; font-size: 14px; font-weight: 550; }
+.replay-archive-label > div > span { color: #a0b6c2; font-family: var(--replay-mono); font-size: 13px; line-height: 1.6; }
+.replay-archive-label p { margin: 5px 0 0; color: #adbec8; font-size: 14px; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
 .replay-loading, .replay-error { padding: 27px 22px; color: #b3c2cd; font-size: 12px; line-height: 1.8; }
 .replay-loading::before { content: ""; display: inline-block; width: 6px; height: 6px; margin-right: 10px; border-radius: 50%; background: #a4c7b5; vertical-align: middle; }
 .replay-error p { margin: 0 0 13px; }
@@ -46,6 +51,14 @@
 .replay-attribution-head strong { color: #c8dfd2; font-family: var(--replay-mono); font-size: 16px; font-weight: 500; overflow-wrap: anywhere; }
 .replay-attribution-head > span { color: #c9b991; font-family: var(--replay-mono); font-size: 11px; }
 .replay-attribution p { margin: 9px 0 0; color: #93a99e; font-size: 10px; line-height: 1.8; }
+.replay-attribution .replay-score-policy { margin-top: 18px; color: #b9cfc1; font-size: 14px; line-height: 1.7; word-break: keep-all; overflow-wrap: anywhere; }
+.replay-policy-update { margin-top: 16px; border-top: 1px solid #34483e; }
+.replay-policy-update > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 9px 0; color: #bfd7c9; font-size: 14px; line-height: 1.6; list-style: none; cursor: pointer; }
+.replay-policy-update > summary::-webkit-details-marker { display: none; }
+.replay-policy-update > summary::after { content: "+"; flex: none; color: #a4c7b5; font-family: var(--replay-mono); font-size: 18px; }
+.replay-policy-update[open] > summary::after { content: "−"; }
+.replay-policy-update > p { margin: 5px 0 12px; color: #a9c0b3; font-size: 16px; line-height: 1.8; word-break: keep-all; overflow-wrap: anywhere; }
+.replay-policy-update > p:last-child { font-size: 14px; color: #94aaa0; }
 .replay-score-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
 .replay-score-grid:empty { display: none; }
 .replay-score-grid > div { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
@@ -179,6 +192,7 @@
 .replay-terminal-note { margin: 0; padding: 10px 15px; border-top: 1px solid #1f3039; color: #8fa5b2; font-size: 10px; line-height: 1.7; }
 .log-demo-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 @media (max-width: 680px) {
+  .replay-archive-label { margin-inline: 17px; }
   .log-demo-heading { align-items: flex-start; flex-wrap: wrap; gap: 6px 12px; padding-inline: 17px; }
   .log-demo-heading > span { margin-left: 17px; font-size: 9px; text-align: left; }
   .replay-body { padding: 21px 17px 13px; }
@@ -195,6 +209,7 @@
   .replay-event { grid-template-columns: 42px minmax(0, 1fr) auto; column-gap: 10px; padding: 12px; }
 }
 @media (max-width: 440px) {
+  .replay-archive-label { margin-inline: 14px; padding-inline: 12px; }
   .log-demo-heading { padding: 13px 14px; }
   .log-demo-heading h3 { font-size: 12px; }
   .log-demo-heading > span > span { margin-inline: 3px; }

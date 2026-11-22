@@ -246,6 +246,59 @@
     return `<figure class="case-diagram"><figcaption><span aria-hidden="true">↳</span> 처리 흐름</figcaption><div role="img" aria-label="${escape(diagram.summary)}">${drawing}</div></figure>`;
   }
 
+  function renderCase(project, item, index) {
+    const sources = sourceLinks(item.sources, 'case-sources', '관련 구현 기록');
+    return `<article class="case-study${sources ? ' has-sources' : ''}">
+      <header class="case-heading"><span class="case-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4></header>
+      ${window.portfolioStateDemo?.render(project.id, index, item) || caseDiagram(item.diagram)}
+      <dl class="case-flow">
+        <div class="case-problem"><dt>문제</dt><dd>${escape(item.problem)}</dd></div>
+        <div class="case-action"><dt>해결</dt><dd>${escape(item.action)}</dd></div>
+        <div class="case-change"><dt><span aria-hidden="true">↳</span> 달라진 점</dt><dd>${escape(item.change)}</dd></div>
+      </dl>${sources}
+    </article>`;
+  }
+
+  function componentSections(project) {
+    const { components, cases } = project.detail;
+    const tabs = [...components.map(component => ({ id: component.id, title: component.name, subtitle: component.subtitle })), { id: 'replay', title: '실측 기록', subtitle: 'Core 로그·그래프' }];
+    const prefix = `project-${project.id}-section`;
+    return `<section class="system-overview" aria-label="Core와 UOG의 역할">
+      <p class="system-overview-label">Linux 진단부터 수신·보관까지</p>
+      <div class="system-overview-flow">
+        <div><span>HOST AGENT</span><strong>Core</strong><p>지표 수집 · 압력 진단 · 원인 후보</p></div>
+        <span class="system-transport">TLS 세션<br>스냅샷 전달</span>
+        <div><span>RECEIVER & ARCHIVE</span><strong>UOG</strong><p>CCC 접속 승인 · TCC 수신 · AMC 보관</p></div>
+      </div>
+    </section>
+    <div class="component-tab-anchor" aria-hidden="true"></div>
+    <div class="component-tabs" role="tablist" aria-label="Bullseye 구현 영역">
+      ${tabs.map((tab, index) => `<button type="button" role="tab" id="${prefix}-tab-${tab.id}" aria-controls="${prefix}-${tab.id}" aria-selected="${index === 0}" tabindex="${index === 0 ? 0 : -1}" data-component-tab="${tab.id}"><strong>${escape(tab.title)}</strong><span>${escape(tab.subtitle)}</span></button>`).join('')}
+    </div>
+    ${components.map((component, componentIndex) => `<section class="component-panel" role="tabpanel" tabindex="0" id="${prefix}-${component.id}" aria-labelledby="${prefix}-tab-${component.id}" ${componentIndex ? 'hidden' : ''}>
+      <header class="component-intro"><div><p class="component-eyebrow">${escape(component.name)}</p><h3>${escape(component.subtitle)}</h3><p>${escape(component.summary)}</p></div><div class="component-scope"><h4>직접 구현한 범위</h4><ul>${component.scope.map(item => `<li>${escape(item)}</li>`).join('')}</ul></div></header>
+      <div class="case-studies">${cases.map((item, index) => item.component === component.id ? renderCase(project, item, index) : '').join('')}</div>
+    </section>`).join('')}
+    <section class="component-panel replay-panel" role="tabpanel" tabindex="0" id="${prefix}-replay" aria-labelledby="${prefix}-tab-replay" hidden>
+      <header class="component-intro"><div><p class="component-eyebrow">CAPTURE ARCHIVE</p><h3>부하가 올라갔다 회복하는 실제 기록</h3><p>격리된 Linux 환경에서 수집한 Core 진단 로그와 그래프입니다. 수집 당시 버전의 판단 결과를 그대로 재생합니다.</p></div></header>
+      ${window.portfolioLogDemo?.render(project.id) || ''}
+    </section>`;
+  }
+
+  function standardSections(project) {
+    const detail = project.detail;
+    return `<section class="modal-section contribution-section" aria-labelledby="contributions-title">
+      <div class="modal-section-heading"><h3 id="contributions-title">내가 한 일</h3><span>MY CONTRIBUTION</span></div>
+      <ul class="contribution-list${detail.contributions.length > 3 ? ' contribution-list-grid' : ''}">${detail.contributions.map((item, index) => `<li><span class="contribution-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4><p>${escape(item.body)}</p></li>`).join('')}</ul>
+    </section>
+    ${window.portfolioSimulations?.render(project.id) || ''}
+    ${window.portfolioLogDemo?.render(project.id) || ''}
+    <section class="modal-section cases-section" aria-labelledby="solutions-title">
+      <div class="modal-section-heading"><h3 id="solutions-title">문제를 푼 방식</h3><span>${String(detail.cases.length).padStart(2, '0')} CASES</span></div>
+      <div class="case-studies">${detail.cases.map((item, index) => renderCase(project, item, index)).join('')}</div>
+    </section>`;
+  }
+
   function projectDetail(project, next) {
     const detail = project.detail;
     const scope = detail.scope;
@@ -270,29 +323,7 @@
         </div>
         <div class="modal-art">${art(project, 'modal')}</div>
       </header>
-      <section class="modal-section contribution-section" aria-labelledby="contributions-title">
-        <div class="modal-section-heading"><h3 id="contributions-title">내가 한 일</h3><span>MY CONTRIBUTION</span></div>
-        <ul class="contribution-list${detail.contributions.length > 3 ? ' contribution-list-grid' : ''}">${detail.contributions.map((item, index) => `<li><span class="contribution-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4><p>${escape(item.body)}</p></li>`).join('')}</ul>
-      </section>
-      ${window.portfolioSimulations?.render(project.id) || ''}
-      ${window.portfolioLogDemo?.render(project.id) || ''}
-      <section class="modal-section cases-section" aria-labelledby="solutions-title">
-        <div class="modal-section-heading"><h3 id="solutions-title">문제를 푼 방식</h3><span>${String(detail.cases.length).padStart(2, '0')} CASES</span></div>
-        <div class="case-studies">${detail.cases.map((item, index) => {
-          const sources = sourceLinks(item.sources, 'case-sources', '관련 구현 기록');
-          return `
-          <article class="case-study${sources ? ' has-sources' : ''}">
-            <header class="case-heading"><span class="case-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><h4>${escape(item.title)}</h4></header>
-            ${window.portfolioStateDemo?.render(project.id, index) || caseDiagram(item.diagram)}
-            <dl class="case-flow">
-              <div class="case-problem"><dt>문제</dt><dd>${escape(item.problem)}</dd></div>
-              <div class="case-action"><dt>해결</dt><dd>${escape(item.action)}</dd></div>
-              <div class="case-change"><dt><span aria-hidden="true">↳</span> 달라진 점</dt><dd>${escape(item.change)}</dd></div>
-            </dl>
-            ${sources}
-          </article>`;
-        }).join('')}</div>
-      </section>
+      ${detail.components?.length ? componentSections(project) : standardSections(project)}
       <button type="button" class="modal-next" data-next="${next.id}"><span><small>다음 프로젝트</small><strong>${escape(next.shortTitle)}</strong></span><span aria-hidden="true">↗</span></button>`;
   }
 
@@ -371,9 +402,43 @@
     if (button) showProject(button.dataset.project);
   });
   content.addEventListener('click', event => {
+    const tab = event.target.closest('[data-component-tab]');
+    if (tab) selectComponentTab(tab);
     const next = event.target.closest('[data-next]');
     if (next) showProject(next.dataset.next);
   });
+  function selectComponentTab(tab) {
+    const tablist = tab.closest('[role="tablist"]');
+    if (!tablist || !content.contains(tablist)) return;
+    const toolbarHeight = dialog.querySelector('.modal-toolbar').getBoundingClientRect().height;
+    const anchorTop = content.querySelector('.component-tab-anchor').getBoundingClientRect().top;
+    const sectionTop = dialog.scrollTop + anchorTop - dialog.getBoundingClientRect().top - toolbarHeight;
+    tablist.querySelectorAll('[role="tab"]').forEach(button => {
+      const active = button === tab;
+      button.setAttribute('aria-selected', String(active));
+      button.tabIndex = active ? 0 : -1;
+      document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
+    });
+    // A sticky tab's own rectangle no longer indicates its normal flow position.
+    // Return to the panel's start even when switching from a long scrolled section.
+    dialog.scrollTop = Math.max(0, sectionTop);
+    watchDiagramMotion();
+  }
+  content.addEventListener('keydown', event => {
+    const tab = event.target.closest('[data-component-tab]');
+    if (!tab || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const tabs = [...tab.closest('[role="tablist"]').querySelectorAll('[role="tab"]')];
+    const index = tabs.indexOf(tab);
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : (index + (event.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
+    tabs[next].focus({ preventScroll: true });
+    selectComponentTab(tabs[next]);
+  });
+  if ('ResizeObserver' in window) {
+    new ResizeObserver(entries => {
+      dialog.style.setProperty('--modal-toolbar-height', `${entries[0].target.getBoundingClientRect().height}px`);
+    }).observe(dialog.querySelector('.modal-toolbar'));
+  }
   document.getElementById('close-dialog').addEventListener('click', () => closeDialog());
   copyLinkButton.addEventListener('click', copyProjectLink);
   dialog.addEventListener('cancel', event => { event.preventDefault(); closeDialog(); });

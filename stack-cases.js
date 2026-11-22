@@ -7,7 +7,7 @@
       summary: '현장 서비스의 업무 로직부터 독립 실행형 Linux 진단 에이전트까지 구현했습니다.',
       items: [
         { id: '01', title: '대피와 SOS 상태 분리', project: '선박 작업자 안전관제', body: '대피 해제가 진행 중인 SOS 경보에 영향을 주지 않도록 상태를 구분했습니다.' },
-        { id: '20', title: '수집·진단·발행 파이프라인', project: 'Bullseye Core', body: 'Java 25 멀티모듈로 Linux 지표 수집, 압력 판단과 JSON 발행 책임을 나눴습니다.' }
+        { id: '20', title: '진단과 수신·보관의 책임 분리', project: 'Bullseye', body: 'Java 25 기반 Core의 Linux 진단과 UOG의 접속 승인·수신·보관을 나누고, 느린 원인 조사와 보관소 장애가 앞단을 막지 않도록 구성했습니다.' }
       ]
     },
     'Spring': {
@@ -50,7 +50,7 @@
       summary: '로컬 개발 환경을 구성하고 진단 에이전트의 실행과 상태 출력을 확인하는 데 사용했습니다.',
       items: [
         { id: '19', title: '로컬 JDK 없이 실행하는 개발 환경', project: 'Flowit', body: 'Docker 실행 환경과 소스 해시 기반 재빌드 흐름을 구성했습니다.' },
-        { id: '20', title: '진단 에이전트 smoke 환경', project: 'Bullseye Core', body: '컨테이너 실행, 상태 파일 갱신과 종료를 확인하는 개발 검증 환경을 구성했습니다.' }
+        { id: '20', title: '진단 에이전트 smoke 환경', project: 'Bullseye', body: '컨테이너 실행, 상태 파일 갱신과 종료를 확인하는 개발 검증 환경을 구성했습니다.' }
       ]
     },
     'Naver Cloud Platform': { title: 'NCP', context: '개발·운영 환경', summary: '회사 서비스의 개발·운영 서버를 위한 클라우드 환경으로 Naver Cloud Platform을 사용했습니다.', items: [fieldWork] },

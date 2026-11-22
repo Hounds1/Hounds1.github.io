@@ -1956,22 +1956,22 @@ window.portfolioProjects = [
   },
   {
     "id": "20",
-    "shortTitle": "Bullseye Core",
-    "hook": "Linux 자원 압력과 계측 최신성을 구분하고 메모리 원인 후보를 추적",
+    "shortTitle": "Bullseye",
+    "hook": "Linux 진단부터 인증된 텔레메트리 수신·보관까지",
     "category": "personal",
     "tags": [
       "Linux 진단",
-      "PSI",
-      "cgroup v2"
+      "cgroup v2",
+      "텔레메트리"
     ],
     "period": "2026.09 — 진행 중",
     "detail": {
-      "context": "CPU·메모리·I/O 지표와 Linux PSI로 자원 압력을 진단하고, 메모리 압력의 워크로드 원인 후보를 추적하는 독립 실행형 Linux 에이전트입니다.",
-      "lead": "지표 수집·지속 압력 진단부터 메모리 원인 추정, 계측 최신성 판단과 JSON 발행 복구까지 구현했습니다.",
-      "role": "개인 개발 · 수집·진단·상태 발행 설계 및 구현",
+      "context": "Linux 호스트의 자원 압력과 원인 후보를 진단하는 Core, 여러 Core의 접속·텔레메트리·보관을 담당하는 UOG로 구성한 시스템입니다.",
+      "lead": "Core의 지표 수집·원인 추적·JSON 발행과 UOG의 인증된 수신·비동기 보관을 구현했습니다. 느린 원인 조사나 보관소 장애가 앞단의 진단과 수신까지 막지 않도록 경계를 나눴습니다.",
+      "role": "개인 개발 · Core 진단 에이전트 및 UOG 수신·보관 서버 설계·구현",
       "planned": [
         "Voice Pack",
-        "추가 기능 확장"
+        "진단·운영 기능 확장"
       ],
       "stack": [
         "Java 25",
@@ -1979,160 +1979,263 @@ window.portfolioProjects = [
         "Linux /proc",
         "PSI",
         "cgroup v2",
+        "TLS / mTLS",
         "Docker"
       ],
       "links": [
         {
-          "label": "GitHub · README",
+          "label": "GitHub · Core",
           "url": "https://github.com/Hounds1/Bullseye-Core"
         },
         {
-          "label": "PR #5 · 상태 최신성과 발행 복구",
-          "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
-        },
-        {
-          "label": "PR #6 · 메모리 원인 재평가",
-          "url": "https://github.com/Hounds1/Bullseye-Core/pull/6"
+          "label": "GitHub · UOG",
+          "url": "https://github.com/Hounds1/Bullseye-UOG"
         }
       ],
-      "contributions": [
+      "components": [
         {
-          "title": "압력 진단과 계측 최신성",
-          "body": "리소스별 사용률·PSI·지속 시간으로 압력을 판단하고, 관측 공백과 데이터 만료를 진단 등급과 별도로 처리했습니다."
+          "id": "core",
+          "name": "Core",
+          "subtitle": "호스트 안에서 진단하고 발행",
+          "summary": "CPU·메모리·I/O의 지속 압력을 판단하고, cgroup별 사용량을 비교해 원인 후보와 판단 근거를 제공합니다. UOG 연결을 켜지 않아도 로컬 진단과 상태 파일 발행은 동작합니다.",
+          "scope": [
+            "호스트 지표 수집·관측 최신성·압력 진단",
+            "CPU·메모리·I/O 원인 후보와 신뢰도 평가",
+            "자원별 JSON 상태 발행·선택적 UOG 전송"
+          ]
         },
         {
-          "title": "메모리 워크로드 원인 추적",
-          "body": "cgroup의 사용량·증가 속도·PSI·메모리 이벤트를 비교하고, 원인 후보의 점수·신뢰도·수집 범위를 함께 제공했습니다."
-        },
-        {
-          "title": "스냅샷 갱신과 발행 복구",
-          "body": "같은 등급에서도 매 평가의 현재 값을 JSON에 갱신하고, 원자적 파일 교체와 최신 스냅샷 우선 재시도로 발행 실패를 처리했습니다."
+          "id": "uog",
+          "name": "UOG",
+          "subtitle": "접속을 승인하고 수신·보관",
+          "summary": "CCC가 Core의 접속과 세션을 관리하고, TCC가 스냅샷을 검증해 최신 상태를 저장합니다. AMC로의 보관은 별도로 전달해 장애와 재시작에 대응합니다.",
+          "scope": [
+            "CCC · 인증서 기반 접속 승인·세션·감사 기록",
+            "TCC · 스냅샷 검증·최신 상태 저장·ACK",
+            "AMC · 비동기 보관·중복 처리·용량 및 미전달량 감시"
+          ]
         }
       ],
       "cases": [
         {
-          "title": "관측 공백을 정상 복구로 오인하지 않도록",
-          "problem": "순간적인 사용률 상승과 지속 압력을 구분해야 했고, 수집이 끊긴 시간을 정상 상태나 복구 조건의 유지 시간으로 계산해서도 안 됐습니다.",
-          "action": "사용률·PSI·상승 추세를 리소스별 규칙으로 판단했습니다. 관측 간격이 샘플링 주기의 두 배를 넘으면 지속 시간 계산을 끊고, 시작 대기·최신·만료 상태를 INITIALIZING·FRESH·STALE로 구분했습니다.",
-          "change": "수집 공백에서는 이전 진단을 유지합니다. 현재 계측값은 observations, 진단 근거는 evidence로 분리해 값의 최신성과 압력 상태를 함께 확인할 수 있습니다.",
-          "diagram": {
-            "kind": "sequence",
-            "summary": "사용률과 PSI를 수집한 뒤 관측 간격과 데이터 최신성을 확인합니다. 연속 관측 구간의 압력·복구 조건을 판단하고, 현재 계측값과 기존 진단 근거를 구분해 제공합니다.",
-            "steps": [
-              {
-                "label": "Linux 지표 수집",
-                "detail": "사용률·PSI 대기 지표"
-              },
-              {
-                "label": "관측 연속성 확인",
-                "detail": "시작 대기·최신·만료 구분"
-              },
-              {
-                "label": "리소스별 규칙",
-                "detail": "지속 압력·상승 추세·복구 조건"
-              },
-              {
-                "label": "현재 값과 진단 분리",
-                "detail": "observations · evidence"
-              }
-            ]
-          },
-          "sources": [
-            {
-              "label": "PR #2 · 압력 진단 규칙",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/2"
-            },
-            {
-              "label": "PR #5 · 관측 공백과 최신성",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
-            },
-            {
-              "label": "README · Diagnostic policy",
-              "url": "https://github.com/Hounds1/Bullseye-Core#diagnostic-policy"
-            }
-          ]
-        },
-        {
-          "title": "메모리 원인 후보를 근거와 함께 재평가",
-          "problem": "메모리 압력이 계속되는 동안 원인 워크로드가 바뀔 수 있고, 일부 cgroup만 읽은 결과를 확실한 원인처럼 보여주면 판단을 잘못 이끌 수 있습니다.",
-          "action": "탐색 깊이·그룹 수를 제한하고, 메모리 HIGH 진입 시와 유지 중 기본 30초마다 원인을 재평가했습니다. 관측 간격을 반영한 증가 속도와 사용량·PSI·이벤트 점수를 계산하며, CRITICAL에서는 최신 계측이 있는 매 평가마다 확인합니다.",
-          "change": "후보와 함께 항목별 점수·수집 시각·성공 및 실패 범위를 제공합니다. 후보 차이가 작거나 수집이 불완전하면 LOW로 제한하고, 데이터가 부족하면 원인 미확정 상태를 명시합니다.",
+          "component": "core",
+          "title": "많이 쓴 워크로드와 원인 후보를 구분",
+          "problem": "작은 자원 할당량을 가득 쓴 워크로드가 호스트 전체 압력의 주원인인 것은 아닙니다. 일부 cgroup만 읽은 결과를 확실한 원인처럼 보여주는 것도 피해야 했습니다.",
+          "action": "CPU는 호스트 전체 코어 대비 사용량, 메모리는 호스트 점유 최대 65점과 증가 속도 최대 35점으로 비교했습니다. 메모리 PSI·제한 이벤트는 보조 근거로 분리하고, CPU·메모리 후보는 LOW에서 시작해 연속 관측·유지 시간·후보 간 차이와 수집 완전성을 확인한 뒤 신뢰도를 높이도록 했습니다.",
+          "change": "후보와 함께 점수·수집 범위·판단 근거를 제공합니다. I/O는 장치별로 관측된 활동의 우세 후보만 제시하며, 물리적 병목 원인으로 단정하지 않도록 신뢰도를 LOW로 제한합니다.",
           "diagram": {
             "kind": "branch",
-            "summary": "메모리 HIGH 진입과 주기적 재평가 시 제한된 cgroup 범위를 수집합니다. 사용량·증가 속도·PSI·이벤트 점수로 후보를 비교하고, 수집 완전성과 후보 차이에 따라 신뢰도를 결정합니다.",
+            "summary": "자원별 실제 사용량으로 후보를 비교한 뒤 반복 관측과 수집 품질을 확인합니다. CPU·메모리는 조건을 만족해야 신뢰도를 높이고, I/O는 관측 활동의 후보로만 제공합니다.",
             "start": {
-              "label": "메모리 압력 재평가",
-              "detail": "HIGH 진입·유지 중 주기적 수집"
+              "label": "자원별 cgroup 수집",
+              "detail": "CPU 시간 · 메모리 · 장치별 I/O"
             },
             "gate": {
-              "label": "점수·수집 범위 확인",
-              "detail": "사용량·증가 속도·PSI·이벤트"
+              "label": "기여도·관측 품질 확인",
+              "detail": "호스트 비중 · 반복 관측 · 후보 차이"
             },
             "paths": [
               {
-                "when": "수집 완료 · 후보 구분 가능",
-                "label": "후보와 근거 제공",
-                "detail": "점수와 후보 차이로 신뢰도 결정",
+                "when": "CPU·메모리 · 확인 조건 충족",
+                "label": "후보 신뢰도 재평가",
+                "detail": "LOW에서 시작해 근거를 누적",
                 "tone": "keep"
               },
               {
-                "when": "일부 누락 · 후보 차이 작음",
-                "label": "신뢰도 LOW 제한",
-                "detail": "수집 범위와 불확실성 표시",
+                "when": "I/O 또는 불완전한 조사",
+                "label": "제한된 확신을 함께 표시",
+                "detail": "LOW 유지 · 부족하면 후보 미확정",
                 "tone": "muted"
               }
             ]
           },
           "sources": [
             {
-              "label": "PR #4 · 메모리 원인 추적",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/4"
+              "label": "Core · 메모리 점수와 근거",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/README.md#memory-evidence"
             },
             {
-              "label": "PR #6 · 재평가와 판단 근거",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/6"
+              "label": "Core · 신뢰도와 수집 범위",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/README.md#confidence-and-collection-coverage"
             },
             {
-              "label": "README · Memory attribution evidence",
-              "url": "https://github.com/Hounds1/Bullseye-Core#memory-attribution-evidence"
+              "label": "Core · I/O 판단 범위",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/README.md#io-evidence"
             }
           ]
         },
         {
-          "title": "같은 등급에서도 최신 스냅샷을 발행",
-          "problem": "진단 등급이 같아도 현재 계측값과 평가 시각은 바뀝니다. 파일 발행이 한 번 실패한 뒤 다음 상태 전환까지 갱신이 멈추는 경우도 처리해야 했습니다.",
-          "action": "완료된 매 평가마다 스냅샷을 갱신하고 임시 파일 작성·flush·원자적 교체로 발행했습니다. 실패하면 1초마다 재시도하고, 대기 중인 값은 새 스냅샷으로 교체해 오래된 상태가 뒤늦게 덮이지 않도록 했습니다.",
-          "change": "version·since는 의미 있는 상태 변화에만 갱신하고 evaluatedAt·observations는 매 평가를 반영합니다. 읽는 쪽은 버전뿐 아니라 평가 시각의 경과와 관측 상태로 최신성을 확인할 수 있습니다.",
+          "component": "core",
+          "title": "원인 조사가 느려져도 진단은 계속",
+          "problem": "cgroup 조회가 지연되면 호스트의 압력 판단과 상태 발행까지 늦어질 수 있습니다. 회복 전에 시작한 조사가 뒤늦게 끝나면 이미 바뀐 상태에 오래된 후보가 섞일 수도 있습니다.",
+          "action": "호스트 진단과 cgroup 원인 조사를 분리하고, 전용 작업자에 자원별 최신 요청을 전달했습니다. 진단 상태가 바뀌면 이전 요청을 무효화하고, 늦게 완료된 결과가 현재 평가에 적용될 수 있는지 다시 확인하도록 했습니다.",
+          "change": "원인 조사 지연 중에도 호스트 진단과 로컬 JSON 발행을 이어갑니다. 회복·재발 뒤에 도착한 이전 결과는 버려 현재 상태와 원인 후보가 어긋나지 않도록 했습니다.",
           "diagram": {
             "kind": "sequence",
-            "summary": "매 평가의 현재 계측값과 진단 상태로 스냅샷을 구성하고, 의미 있는 상태 전환에만 버전을 올립니다. 임시 파일을 작성·flush한 뒤 원자적으로 교체하며 발행 실패 시 최신 대기 스냅샷으로 재시도합니다.",
+            "summary": "호스트 진단은 계속 진행하며 원인 조사만 별도 작업자에 전달합니다. 조사가 완료되면 요청의 유효성을 확인해 현재 상태에 맞는 결과만 반영합니다.",
             "steps": [
               {
-                "label": "매 평가 스냅샷 구성",
-                "detail": "현재 계측값·진단 근거 구분"
+                "label": "호스트 진단 계속",
+                "detail": "현재 압력 판단 · 로컬 상태 발행"
               },
               {
-                "label": "버전과 평가 시각 분리",
-                "detail": "같은 버전에도 최신 값 갱신"
+                "label": "원인 조사 요청",
+                "detail": "전용 작업자 · 자원별 최신 대기 요청"
               },
               {
-                "label": "임시 파일 작성",
-                "detail": "JSON 저장 후 flush"
+                "label": "완료 결과 유효성 확인",
+                "detail": "회복·재발 전 요청은 무효화"
               },
               {
-                "label": "현재 파일 교체",
-                "detail": "원자적 반영·실패 시 최신 값 재시도"
+                "label": "현재 결과만 반영",
+                "detail": "늦은 이전 결과는 폐기"
               }
             ]
           },
           "sources": [
             {
-              "label": "PR #5 · 최신 스냅샷과 발행 복구",
-              "url": "https://github.com/Hounds1/Bullseye-Core/pull/5"
+              "label": "Core · 비동기 원인 조사",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/bullseye-core/src/main/java/io/bullseye/core/diagnostic/AttributionWorker.java"
             },
             {
-              "label": "README · State output",
-              "url": "https://github.com/Hounds1/Bullseye-Core#state-output"
+              "label": "Core · 지연·회복 시나리오 테스트",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/bullseye-core/src/test/java/io/bullseye/core/diagnostic/AsyncAttributionTest.java"
+            }
+          ]
+        },
+        {
+          "component": "core",
+          "demo": "state",
+          "title": "대표 진단과 자원별 상태를 함께 전달",
+          "problem": "대표 진단만 발행하면 다른 자원의 상태 변화를 놓칩니다. 같은 등급에서도 계측값은 바뀌며, 관측 공백이나 시스템 시각 보정이 지속 시간·최신성 판단을 왜곡해서도 안 됐습니다.",
+          "action": "매 평가의 observations와 진단 evidence를 구분하고, resources에 자원별 결과를 함께 발행했습니다. 진단 시간축은 단조 시계로 유지하고 실제 UTC는 wallClockAt으로 분리했습니다. 로컬 파일은 원자적으로 교체하며, 선택적 UOG 전송은 별도 경로에 진행 중 1건과 최신 대기 1건만 유지합니다.",
+          "change": "대표 또는 자원별 진단이 바뀌면 version이 증가하고, since는 대표·각 자원의 변화에 맞춰 따로 유지됩니다. 전송 sequence는 진단 version과 구분합니다. Core 전송 대기는 메모리 기반이며 모든 샘플의 보존을 보장하지 않습니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "한 평가에서 대표 진단·자원별 진단·현재 관측값을 구성합니다. 로컬 파일 발행과 선택적 원격 전송을 분리하고, 전송 시 노드·실행·순서 식별자를 붙입니다.",
+            "steps": [
+              {
+                "label": "한 평가의 입력 확정",
+                "detail": "관측값 · 최신성 · 진단 근거"
+              },
+              {
+                "label": "자원별 상태 구성",
+                "detail": "resources · version · 개별 since"
+              },
+              {
+                "label": "로컬 JSON 발행",
+                "detail": "임시 파일 작성 후 원자적 교체"
+              },
+              {
+                "label": "선택적 UOG 전송",
+                "detail": "nodeId · runId · sequence · snapshot"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "Core · 상태와 시간 필드",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/README.md#state-output"
+            },
+            {
+              "label": "Core · TCC 전송 형식",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/README.md#tcc-snapshot-format-v1"
+            },
+            {
+              "label": "Core · 전송 계약",
+              "url": "https://github.com/Hounds1/Bullseye-Core/blob/28cb83226b016d3a0289574dd0a1765825ec8b69/docs/ccc-join-v1.md#optional-tcc-snapshot-delivery"
+            }
+          ]
+        },
+        {
+          "component": "uog",
+          "title": "접속한 노드와 수신 데이터를 함께 검증",
+          "problem": "연결됐다는 사실만으로 스냅샷을 신뢰할 수는 없습니다. 재전송된 데이터를 중복 저장하거나, 다른 실행의 데이터가 최신 상태를 덮어쓰는 경우도 구분해야 했습니다.",
+          "action": "CCC에서 노드 ID와 클라이언트 인증서 지문으로 접속을 승인했습니다. TCC는 승인 세션의 nodeId·runId와 스냅샷 형식·순서를 검증하고 최신 파일을 원자적으로 저장합니다. 동일 내용의 재전송, 충돌, 저장 실패는 서로 다른 ACK로 응답합니다.",
+          "change": "ACCEPTED는 TCC의 로컬 최신 상태 저장 완료를 뜻하며 AMC 보관 완료와 구분됩니다. DUPLICATE는 동일 기록, REJECTED는 잘못된 요청, RETRYABLE은 재시도 가능한 저장 실패로 처리합니다.",
+          "diagram": {
+            "kind": "sequence",
+            "summary": "인증서로 승인된 CCC 세션에서 스냅샷을 받아 세션 식별자와 데이터 형식을 검증합니다. TCC의 최신 파일 저장 결과를 해당 sequence의 ACK로 반환합니다.",
+            "steps": [
+              {
+                "label": "CCC 접속 승인",
+                "detail": "인증서 · 노드 ID · 세션"
+              },
+              {
+                "label": "TCC 검증",
+                "detail": "실행 ID · 형식 · 순서 · 내용"
+              },
+              {
+                "label": "최신 상태 저장",
+                "detail": "노드별 파일 원자적 교체"
+              },
+              {
+                "label": "결과 ACK 반환",
+                "detail": "수신 성공과 보관 완료는 분리"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "UOG · CCC 접속과 인증",
+              "url": "https://github.com/Hounds1/Bullseye-UOG/blob/a3d199550285623c5961e275c669ad8d7b520ca7/bullseye-ccc/README.md"
+            },
+            {
+              "label": "UOG · TCC 검증·ACK",
+              "url": "https://github.com/Hounds1/Bullseye-UOG/blob/a3d199550285623c5961e275c669ad8d7b520ca7/bullseye-tcc/README.md"
+            }
+          ]
+        },
+        {
+          "component": "uog",
+          "title": "보관소 장애를 수신 경로에서 분리",
+          "problem": "장기 보관소가 잠시 실패했다고 접속 승인과 최신 상태 수신까지 멈추면 장애 범위가 커집니다. 최신 파일을 덮어쓸 때 아직 보관하지 못한 기록도 잃지 않아야 했습니다.",
+          "action": "AMC 전달을 백그라운드로 분리하고, 보관이 확인되지 않은 이전 스냅샷은 최신 파일 교체 전에 디스크의 대기 영역에 남겼습니다. CCC 감사 기록은 보관 성공 뒤에만 체크포인트를 전진시키고, 재시작하면 남은 파일과 위치에서 전달을 이어가도록 했습니다.",
+          "change": "AMC 장애 중에도 로컬에 대기 기록을 보존할 수 있으면 TCC 수신을 계속합니다. 보존마저 실패하면 RETRYABLE로 응답하고 이전 최신 기록을 유지합니다. 복구 후 중복 전달은 보관소에서 확인·처리하며 용량과 미전달량도 감시합니다.",
+          "diagram": {
+            "kind": "branch",
+            "summary": "AMC의 보관 확인 전에는 최신·대기 기록을 디스크에 유지합니다. 보관 성공 시 대기를 정리하고, 보관소 장애 시 로컬 보존이 가능한 범위에서 수신과 재전송을 이어갑니다.",
+            "start": {
+              "label": "TCC 수신 · CCC 감사 기록",
+              "detail": "로컬 기록을 비동기로 AMC에 전달"
+            },
+            "gate": {
+              "label": "AMC 보관 확인",
+              "detail": "동일 ID·동일 내용 재전달은 중복 처리"
+            },
+            "paths": [
+              {
+                "when": "보관 성공",
+                "label": "전달 완료 반영",
+                "detail": "대기 파일 정리 · 체크포인트 전진",
+                "tone": "keep"
+              },
+              {
+                "when": "AMC 장애 · 로컬 보존 가능",
+                "label": "기록 유지 후 재전송",
+                "detail": "수신 계속 · 재시작 후 전달 재개",
+                "tone": "muted"
+              },
+              {
+                "when": "로컬 보존도 실패",
+                "label": "TCC 재시도 응답",
+                "detail": "이전 최신 기록 유지 · RETRYABLE",
+                "tone": "muted"
+              }
+            ]
+          },
+          "sources": [
+            {
+              "label": "UOG · 미전달 스냅샷 복구",
+              "url": "https://github.com/Hounds1/Bullseye-UOG/blob/a3d199550285623c5961e275c669ad8d7b520ca7/bullseye-tcc/README.md#archive-handoff"
+            },
+            {
+              "label": "UOG · 감사 기록·중복 보관",
+              "url": "https://github.com/Hounds1/Bullseye-UOG/blob/a3d199550285623c5961e275c669ad8d7b520ca7/bullseye-amc/README.md"
+            },
+            {
+              "label": "UOG · 용량·미전달량 감시",
+              "url": "https://github.com/Hounds1/Bullseye-UOG/blob/a3d199550285623c5961e275c669ad8d7b520ca7/bullseye-amc/README.md#capacity-monitoring"
             }
           ]
         }

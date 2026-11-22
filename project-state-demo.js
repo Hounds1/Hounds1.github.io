@@ -1,45 +1,90 @@
 (() => {
   'use strict';
-
   const mounted = new WeakMap();
+  const epoch = Date.UTC(2026, 10, 22);
+  const runId = '974f2bea-2972-4e48-a954-b671e78fe729';
   const steps = [
-    { title: '현재 스냅샷 · v12', detail: '진단 등급과 마지막 계측값 확인', status: '현재 파일은 HIGH · v12입니다. 이 예시의 메모리 사용률은 88.1%입니다.' },
-    { title: '새 평가 · 임시 파일', detail: '현재 값 갱신 후 write / flush', status: '5초 뒤 현재 사용률이 87.6%로 바뀌었습니다. 진단 상태는 같아 v12를 유지하며, 새 평가 시각과 관측값으로 임시 파일을 작성·flush합니다.' },
-    { title: 'state.json 원자적 교체', detail: '같은 버전에도 새 스냅샷 반영', status: '완성된 임시 파일로 state.json을 교체했습니다. v12와 진단 근거는 유지되고, evaluatedAt과 observations가 새 평가를 반영합니다.' },
-    { title: '읽는 쪽에서 최신성 확인', detail: '평가 시각의 경과·관측 상태 확인', status: '읽는 쪽은 현재 값을 observations에서 확인합니다. 에이전트가 멈추면 마지막 FRESH 파일이 남을 수 있으므로 evaluatedAt이 얼마나 오래됐는지도 검사해야 합니다.' }
-  ];
-  // Selected README fields; the second evaluation is explicitly illustrative.
-  const evaluations = [
-    { evaluatedAt: 1788526810000, usage: 88.1 },
-    { evaluatedAt: 1788526815000, usage: 87.6 }
+    {
+      title: '현재 진단', label: 'STATE · v12', detail: '대표 상태와 자원별 상태',
+      status: '대표 진단은 메모리 HIGH입니다. resources에는 CPU·메모리·I/O의 상태와 각 상태가 시작된 since를 따로 보관합니다.',
+      change: '대표 MEMORY · HIGH / CPU와 I/O는 NORMAL',
+      codeLabel: '로컬 상태 파일 · 주요 필드', stage: 0
+    },
+    {
+      title: '새 관측 반영', label: 'STATE · v12', detail: '값은 바뀌고 버전은 유지',
+      status: '5초 뒤 메모리 사용률이 88.1%에서 87.6%로 바뀌어도 진단 결과가 같으면 v12를 유지합니다. evaluatedAt과 observations는 새 평가를 반영하며, 완성된 임시 파일을 원자적으로 교체합니다.',
+      change: '관측값 갱신 · version 12 유지 · since 유지',
+      codeLabel: '새 평가를 반영한 로컬 파일', stage: 0
+    },
+    {
+      title: '보조 자원 전환', label: 'STATE · v13', detail: 'CPU 변화도 버전에 반영',
+      status: 'CPU가 NORMAL에서 ELEVATED로 바뀌면 대표 진단이 여전히 메모리 HIGH여도 v13이 됩니다. 대표 상태의 since는 유지하고, CPU의 since만 이번 전환 시각으로 바꿉니다.',
+      change: 'version 12 → 13 · CPU since 갱신 · 대표 since 유지',
+      codeLabel: '자원별 전환을 반영한 로컬 파일', stage: 0
+    },
+    {
+      title: 'TCC 전송', label: 'SEND · #43', detail: '진단 버전과 전송 순서 분리',
+      status: '전송을 켜면 승인된 CCC 세션을 통해 스냅샷을 보냅니다. 앞선 두 평가도 전송했다는 예시에서 sequence는 41 → 42 → 43, 진단 version은 12 → 12 → 13입니다. 같은 전송 건의 재시도에는 동일한 sequence와 내용을 사용합니다.',
+      change: 'nodeId + runId + sequence로 전송 건 식별',
+      codeLabel: 'TCC v1 전송 봉투 · snapshot 일부', stage: 1
+    },
+    {
+      title: '저장 후 응답', label: 'ACK · ACCEPTED', detail: '수신 저장과 장기 보관 분리',
+      status: 'UOG의 TCC가 최신 상태를 로컬에 저장한 뒤 ACCEPTED를 응답합니다. AMC 장기 보관은 별도로 진행합니다. 보관소가 실패해도 로컬 저장이 가능한 동안 미전달 데이터를 남기고 다시 전달합니다.',
+      change: 'ACCEPTED = 최신 상태 저장 완료 · AMC 보관 완료와는 별개',
+      codeLabel: 'UOG가 수신한 전송 건 · 주요 필드', stage: 2
+    }
   ];
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-  const snapshotJson = evaluation => `{
-  "severity": "HIGH",
-  "resource": "HOST_MEMORY",
-  "version": 12,
-  "since": 1788526800000,
-  "evaluatedAt": ${evaluation.evaluatedAt},
-  "observationStatus": "FRESH",
-  "observations": {"HOST_MEMORY": {
-    "status": "FRESH",
-    "lastSampleAt": ${evaluation.evaluatedAt},
-    "metrics": [{"metric": "HOST_MEMORY_USAGE", "value": ${evaluation.usage}, "unit": "%"}]
-  }},
-  "evidence": [{"metric": "usage", "value": 88.1, "unit": "%"}]
-}`;
 
-  function render(projectId, caseIndex) {
-    if (projectId !== '20' || caseIndex !== 2) return '';
+  // Illustrative values, selected fields only. These are not captured telemetry.
+  function snapshot(index) {
+    const evaluation = Math.min(index, 2);
+    const evaluatedAt = epoch + 10000 + evaluation * 5000;
+    return {
+      severity: 'HIGH', resource: 'HOST_MEMORY', version: evaluation < 2 ? 12 : 13,
+      since: epoch, evaluatedAt, wallClockAt: evaluatedAt,
+      resources: {
+        HOST_CPU: { severity: evaluation < 2 ? 'NORMAL' : 'ELEVATED', since: evaluation < 2 ? epoch - 30000 : evaluatedAt },
+        HOST_MEMORY: { severity: 'HIGH', since: epoch },
+        HOST_IO: { severity: 'NORMAL', since: epoch - 30000 }
+      },
+      observationStatus: 'FRESH',
+      observations: {
+        HOST_MEMORY: {
+          status: 'FRESH', lastSampleAt: evaluatedAt,
+          metrics: [{ metric: 'HOST_MEMORY_USAGE', value: [88.1, 87.6, 87.3][evaluation], unit: '%' }]
+        }
+      }
+    };
+  }
+  function codeFor(index) {
+    const state = snapshot(index);
+    const selected = index < 3 ? state : {
+      schemaVersion: 1, nodeId: 'demo-node', runId, sequence: 43,
+      snapshot: {
+        version: state.version, severity: state.severity, resource: state.resource,
+        since: state.since, evaluatedAt: state.evaluatedAt, wallClockAt: state.wallClockAt,
+        resources: state.resources
+      }
+    };
+    return JSON.stringify(selected, null, 2);
+  }
+
+  function render(projectId, caseIndex, caseStudy) {
+    if (projectId !== '20' || caseStudy?.demo !== 'state') return '';
     return `<section class="project-state-demo" data-state-demo="20" aria-labelledby="state-demo-title">
-      <header class="state-demo-heading"><div><h5 id="state-demo-title">JSON 발행 흐름</h5><span>로컬 파일 · 설명용 예시</span></div><button type="button" class="state-demo-play" data-state-play>발행 흐름 재생 <span aria-hidden="true">▶</span></button></header>
-      <div class="state-demo-layout">
-        <div class="state-demo-steps" role="group" aria-label="JSON 발행 단계 선택">${steps.map((step, index) => `<button type="button" class="state-demo-step${index === 0 ? ' is-active' : ''}" data-state-step="${index}" aria-pressed="${index === 0}"><span class="state-demo-number" aria-hidden="true">${String(index + 1).padStart(2, '0')}</span><span><strong>${escape(step.title)}</strong><small>${escape(step.detail)}</small></span></button>`).join('')}</div>
-        <div class="state-demo-preview"><div class="state-demo-code-label"><span data-state-code-label>현재 JSON · v12</span><span>README 구조 기반 · 필드 일부</span></div><pre class="state-demo-code" aria-label="상태 스냅샷 JSON 예시"><code>${escape(snapshotJson(evaluations[0]))}</code></pre></div>
+      <header class="state-demo-heading"><div><span class="state-demo-eyebrow">SNAPSHOT TO DELIVERY</span><h5 id="state-demo-title">하나의 진단이 전달되는 과정</h5></div><button type="button" class="state-demo-play" data-state-play aria-pressed="false">흐름 재생</button></header>
+      <div class="state-demo-steps" role="group" aria-label="스냅샷 전달 단계 선택">${steps.map((step, index) => `<button type="button" class="state-demo-step${index === 0 ? ' is-active' : ''}" data-state-step="${index}" aria-pressed="${index === 0}" aria-controls="state-demo-body"><span class="state-demo-step-label">${escape(step.label)}</span><strong>${escape(step.title)}</strong><small>${escape(step.detail)}</small></button>`).join('')}</div>
+      <div class="state-demo-body" id="state-demo-body">
+        <div class="state-demo-route" aria-label="Core 진단, TCC 전송, UOG 수신과 보관"><span class="is-active" data-state-stage="0">Core · 진단</span><i aria-hidden="true">→</i><span data-state-stage="1">TCC · 전송</span><i aria-hidden="true">→</i><span data-state-stage="2">UOG · 수신·보관</span></div>
+        <p class="state-demo-status" data-state-status role="status" aria-live="polite" aria-atomic="true">${escape(steps[0].status)}</p>
+        <p class="state-demo-change" data-state-change>${escape(steps[0].change)}</p>
+        <div class="state-demo-resources" aria-label="예시 스냅샷의 자원별 진단"><span>Memory <strong>HIGH</strong></span><span>CPU <strong data-state-cpu>NORMAL</strong></span><span>I/O <strong>NORMAL</strong></span><span class="state-demo-version" data-state-version>version 12</span></div>
+        <details class="state-demo-preview"><summary>JSON 주요 필드 보기 <span data-state-code-label>${escape(steps[0].codeLabel)}</span></summary><pre class="state-demo-code" tabindex="0" aria-label="현재 단계의 JSON 예시"><code>${escape(codeFor(0))}</code></pre></details>
       </div>
-      <div class="state-demo-file" data-state-file><div><span>현재 파일 · 기본 경로</span><code>/run/bullseye/state.json</code></div><span class="state-demo-version" data-state-version>v12 <small>이전 평가</small></span></div>
-      <p class="state-demo-status" data-state-status role="status" aria-live="polite" aria-atomic="true">${escape(steps[0].status)}</p>
-      <p class="state-demo-note">스냅샷은 매 평가마다 갱신됩니다. 버전은 등급·주요 자원·자원 상태·원인 워크로드·신뢰도·원인 식별 상태가 바뀔 때 증가합니다. 표시된 값은 README 구조로 재구성한 설명용 예시입니다.</p>
+      <details class="state-demo-clock"><summary>평가 시각과 실제 시각을 나눈 이유</summary><p><code>evaluatedAt</code>·<code>since</code>는 시작 시각에 단조 증가하는 경과 시간을 더한 진단 시간축입니다. 시스템 시계가 보정돼도 지속 시간 계산이 흔들리지 않습니다. <code>wallClockAt</code>은 수집 당시 실제 UTC 시각을 별도로 남깁니다.</p><p>읽는 쪽은 <code>evaluatedAt</code>의 갱신이 멈췄는지 자신의 단조 시계로 시간을 재야 합니다. 현재 벽시계와 값을 단순히 빼서 최신성을 판단하지 않습니다. 에이전트가 종료돼도 마지막 파일의 <code>FRESH</code> 표시는 남을 수 있습니다.</p></details>
+      <p class="state-demo-note">스냅샷 형식의 주요 필드로 구성한 설명용 예시입니다. 실측 데이터나 완전한 전송 본문이 아닙니다. CCC/TCC 전송은 설정과 서버 capability가 허용할 때 동작하며, Core의 최신 상태 우선 대기는 모든 샘플의 보존을 보장하지 않습니다.</p>
     </section>`;
   }
 
@@ -49,14 +94,15 @@
     const panel = container.matches?.(selector) ? container : container.querySelector(selector);
     if (!panel) return () => {};
     mounted.get(panel)?.();
-
     const buttons = [...panel.querySelectorAll('[data-state-step]')];
     const playButton = panel.querySelector('[data-state-play]');
-    const file = panel.querySelector('[data-state-file]');
-    const version = panel.querySelector('[data-state-version]');
     const codeLabel = panel.querySelector('[data-state-code-label]');
     const code = panel.querySelector('.state-demo-code code');
     const status = panel.querySelector('[data-state-status]');
+    const change = panel.querySelector('[data-state-change]');
+    const cpu = panel.querySelector('[data-state-cpu]');
+    const version = panel.querySelector('[data-state-version]');
+    const route = [...panel.querySelectorAll('[data-state-stage]')];
     let selected = 0;
     let playing = false;
     let reduced = Boolean(window.portfolioMotion?.isReduced());
@@ -64,81 +110,72 @@
     let disposed = false;
     let timer = null;
     let observer;
-
     function cancelTick() {
       if (timer !== null) clearTimeout(timer);
       timer = null;
     }
-
     function syncControls() {
       panel.classList.toggle('is-playing', playing && visible && !document.hidden && !reduced);
       panel.classList.toggle('state-motion-reduced', reduced);
-      playButton.setAttribute('aria-disabled', String(playing));
-      playButton.innerHTML = playing ? '재생 중 <span aria-hidden="true">·</span>' : '발행 흐름 재생 <span aria-hidden="true">▶</span>';
+      playButton.setAttribute('aria-pressed', String(playing));
+      playButton.textContent = reduced ? '다음 단계' : playing ? '일시정지' : selected === steps.length - 1 ? '다시 재생' : '흐름 재생';
     }
-
     function selectStep(index) {
+      if (!Number.isInteger(index) || index < 0 || index >= steps.length) return;
       selected = index;
       buttons.forEach((button, buttonIndex) => {
         button.setAttribute('aria-pressed', String(buttonIndex === index));
         button.classList.toggle('is-active', buttonIndex === index);
         button.classList.toggle('is-done', buttonIndex < index);
       });
-      const published = index >= 2;
-      file.classList.toggle('is-published', published);
-      version.innerHTML = published ? 'v12 <small>새 평가 · 버전 유지</small>' : 'v12 <small>이전 평가</small>';
-      codeLabel.textContent = published ? '교체된 JSON · v12' : index === 0 ? '현재 JSON · v12' : '발행할 JSON · v12';
-      code.textContent = snapshotJson(evaluations[index === 0 ? 0 : 1]);
+      route.forEach((item, itemIndex) => item.classList.toggle('is-active', itemIndex === steps[index].stage));
+      cpu.textContent = index < 2 ? 'NORMAL' : 'ELEVATED';
+      cpu.classList.toggle('is-elevated', index >= 2);
+      version.textContent = `version ${index < 2 ? 12 : 13}`;
+      codeLabel.textContent = steps[index].codeLabel;
+      code.textContent = codeFor(index);
       status.textContent = steps[index].status;
+      change.textContent = steps[index].change;
+      syncControls();
     }
-
     function finish() {
       cancelTick();
       playing = false;
       syncControls();
     }
-
     function schedule() {
       cancelTick();
       syncControls();
-      if (!disposed && playing && visible && !document.hidden && !reduced) timer = setTimeout(tick, 1100);
+      if (!disposed && playing && visible && !document.hidden && !reduced) timer = setTimeout(tick, 3600);
     }
-
     function tick() {
       timer = null;
       if (disposed || !playing) return;
       if (!visible || document.hidden) { schedule(); return; }
       if (selected === steps.length - 1) { finish(); return; }
       selectStep(selected + 1);
-      schedule();
+      if (selected === steps.length - 1) finish();
+      else schedule();
     }
-
     function onStepClick(event) {
       const button = event.target.closest('[data-state-step]');
       if (!button || !panel.contains(button) || disposed) return;
       finish();
       selectStep(Number(button.dataset.stateStep));
     }
-
     function onPlay() {
-      if (disposed || playing) return;
-      if (reduced) {
-        selectStep(steps.length - 1);
-        return;
-      }
+      if (disposed) return;
+      if (playing) { finish(); return; }
+      if (reduced) { selectStep((selected + 1) % steps.length); return; }
+      if (selected === steps.length - 1) selectStep(0);
       playing = true;
-      selectStep(0);
       schedule();
     }
-
     function onMotionChange(event) {
       reduced = typeof event.detail?.reduced === 'boolean' ? event.detail.reduced : Boolean(window.portfolioMotion?.isReduced());
-      if (reduced && playing) {
-        selectStep(steps.length - 1);
-        finish();
-      } else schedule();
+      if (reduced) finish();
+      else schedule();
     }
-
     panel.addEventListener('click', onStepClick);
     playButton.addEventListener('click', onPlay);
     document.addEventListener('visibilitychange', schedule);
@@ -151,7 +188,6 @@
       observer.observe(panel);
     }
     syncControls();
-
     const cleanup = () => {
       if (disposed) return;
       disposed = true;
@@ -168,6 +204,5 @@
     mounted.set(panel, cleanup);
     return cleanup;
   }
-
   window.portfolioStateDemo = { render, mount };
 })();
