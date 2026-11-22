@@ -268,7 +268,7 @@
       <div class="system-overview-flow">
         <div><span>HOST AGENT</span><strong>Core</strong><p>지표 수집 · 압력 진단 · 원인 후보</p></div>
         <span class="system-transport">TLS 세션<br>스냅샷 전달</span>
-        <div><span>RECEIVER & ARCHIVE</span><strong>UOG</strong><p>CCC 접속 승인 · TCC 수신 · AMC 보관</p></div>
+        <div><span>RECEIVER & ARCHIVE</span><strong>UOG</strong><p>노드 접속 승인 · 상태 수신 · 장기 보관</p></div>
       </div>
     </section>
     <div class="component-tab-anchor" aria-hidden="true"></div>

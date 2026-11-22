@@ -23,14 +23,14 @@
       codeLabel: '자원별 전환을 반영한 로컬 파일', stage: 0
     },
     {
-      title: 'TCC 전송', label: 'SEND · #43', detail: '진단 버전과 전송 순서 분리',
-      status: '전송을 켜면 승인된 CCC 세션을 통해 스냅샷을 보냅니다. 앞선 두 평가도 전송했다는 예시에서 sequence는 41 → 42 → 43, 진단 version은 12 → 12 → 13입니다. 같은 전송 건의 재시도에는 동일한 sequence와 내용을 사용합니다.',
+      title: '스냅샷 전송', label: 'SEND · #43', detail: '진단 버전과 전송 순서 분리',
+      status: '전송을 켜면 승인된 연결을 통해 UOG의 수신 모듈(TCC)에 스냅샷을 보냅니다. 앞선 두 평가도 전송했다는 예시에서 sequence는 41 → 42 → 43, 진단 version은 12 → 12 → 13입니다. 같은 전송 건의 재시도에는 동일한 sequence와 내용을 사용합니다.',
       change: 'nodeId + runId + sequence로 전송 건 식별',
       codeLabel: 'TCC v1 전송 봉투 · snapshot 일부', stage: 1
     },
     {
       title: '저장 후 응답', label: 'ACK · ACCEPTED', detail: '수신 저장과 장기 보관 분리',
-      status: 'UOG의 TCC가 최신 상태를 로컬에 저장한 뒤 ACCEPTED를 응답합니다. AMC 장기 보관은 별도로 진행합니다. 보관소가 실패해도 로컬 저장이 가능한 동안 미전달 데이터를 남기고 다시 전달합니다.',
+      status: '수신 모듈(TCC)이 최신 상태를 로컬에 저장한 뒤 ACCEPTED를 응답합니다. 장기 보관은 별도 모듈(AMC)이 맡습니다. 보관소가 실패해도 로컬 저장이 가능한 동안 미전달 데이터를 남기고 다시 전달합니다.',
       change: 'ACCEPTED = 최신 상태 저장 완료 · AMC 보관 완료와는 별개',
       codeLabel: 'UOG가 수신한 전송 건 · 주요 필드', stage: 2
     }
@@ -77,14 +77,14 @@
       <header class="state-demo-heading"><div><span class="state-demo-eyebrow">SNAPSHOT TO DELIVERY</span><h5 id="state-demo-title">하나의 진단이 전달되는 과정</h5></div><button type="button" class="state-demo-play" data-state-play aria-pressed="false">흐름 재생</button></header>
       <div class="state-demo-steps" role="group" aria-label="스냅샷 전달 단계 선택">${steps.map((step, index) => `<button type="button" class="state-demo-step${index === 0 ? ' is-active' : ''}" data-state-step="${index}" aria-pressed="${index === 0}" aria-controls="state-demo-body"><span class="state-demo-step-label">${escape(step.label)}</span><strong>${escape(step.title)}</strong><small>${escape(step.detail)}</small></button>`).join('')}</div>
       <div class="state-demo-body" id="state-demo-body">
-        <div class="state-demo-route" aria-label="Core 진단, TCC 전송, UOG 수신과 보관"><span class="is-active" data-state-stage="0">Core · 진단</span><i aria-hidden="true">→</i><span data-state-stage="1">TCC · 전송</span><i aria-hidden="true">→</i><span data-state-stage="2">UOG · 수신·보관</span></div>
+        <div class="state-demo-route" aria-label="Core 진단, 스냅샷 전송, UOG 수신과 보관"><span class="is-active" data-state-stage="0">Core · 진단</span><i aria-hidden="true">→</i><span data-state-stage="1">스냅샷 전송</span><i aria-hidden="true">→</i><span data-state-stage="2">UOG · 수신·보관</span></div>
         <p class="state-demo-status" data-state-status role="status" aria-live="polite" aria-atomic="true">${escape(steps[0].status)}</p>
         <p class="state-demo-change" data-state-change>${escape(steps[0].change)}</p>
         <div class="state-demo-resources" aria-label="예시 스냅샷의 자원별 진단"><span>Memory <strong>HIGH</strong></span><span>CPU <strong data-state-cpu>NORMAL</strong></span><span>I/O <strong>NORMAL</strong></span><span class="state-demo-version" data-state-version>version 12</span></div>
         <details class="state-demo-preview"><summary>JSON 주요 필드 보기 <span data-state-code-label>${escape(steps[0].codeLabel)}</span></summary><pre class="state-demo-code" tabindex="0" aria-label="현재 단계의 JSON 예시"><code>${escape(codeFor(0))}</code></pre></details>
       </div>
       <details class="state-demo-clock"><summary>평가 시각과 실제 시각을 나눈 이유</summary><p><code>evaluatedAt</code>·<code>since</code>는 시작 시각에 단조 증가하는 경과 시간을 더한 진단 시간축입니다. 시스템 시계가 보정돼도 지속 시간 계산이 흔들리지 않습니다. <code>wallClockAt</code>은 수집 당시 실제 UTC 시각을 별도로 남깁니다.</p><p>읽는 쪽은 <code>evaluatedAt</code>의 갱신이 멈췄는지 자신의 단조 시계로 시간을 재야 합니다. 현재 벽시계와 값을 단순히 빼서 최신성을 판단하지 않습니다. 에이전트가 종료돼도 마지막 파일의 <code>FRESH</code> 표시는 남을 수 있습니다.</p></details>
-      <p class="state-demo-note">스냅샷 형식의 주요 필드로 구성한 설명용 예시입니다. 실측 데이터나 완전한 전송 본문이 아닙니다. CCC/TCC 전송은 설정과 서버 capability가 허용할 때 동작하며, Core의 최신 상태 우선 대기는 모든 샘플의 보존을 보장하지 않습니다.</p>
+      <p class="state-demo-note">스냅샷의 주요 필드를 발췌한 설명용 예시입니다. Core와 서버 양쪽에서 전송을 허용해야 동작하며, 대기 중 새 상태가 들어오면 최신 상태를 우선합니다.</p>
     </section>`;
   }
 

@@ -1966,7 +1966,7 @@ window.portfolioProjects = [
     ],
     "period": "2026.09 — 진행 중",
     "detail": {
-      "context": "Linux 호스트의 자원 압력과 원인 후보를 진단하는 Core, 여러 Core의 접속·텔레메트리·보관을 담당하는 UOG로 구성한 시스템입니다.",
+      "context": "Core는 Linux 호스트의 자원 압력과 원인 후보를 진단합니다. UOG (Unified Operations Group)는 여러 Core의 접속을 관리하고 텔레메트리를 수신·보관하는 중앙 서버입니다.",
       "lead": "Core의 지표 수집·원인 추적·JSON 발행과 UOG의 인증된 수신·비동기 보관을 구현했습니다. 느린 원인 조사나 보관소 장애가 앞단의 진단과 수신까지 막지 않도록 경계를 나눴습니다.",
       "role": "개인 개발 · Core 진단 에이전트 및 UOG 수신·보관 서버 설계·구현",
       "planned": [
@@ -2008,11 +2008,11 @@ window.portfolioProjects = [
           "id": "uog",
           "name": "UOG",
           "subtitle": "접속을 승인하고 수신·보관",
-          "summary": "CCC가 Core의 접속과 세션을 관리하고, TCC가 스냅샷을 검증해 최신 상태를 저장합니다. AMC로의 보관은 별도로 전달해 장애와 재시작에 대응합니다.",
+          "summary": "Core의 접속을 승인하고 노드별 최신 상태를 저장합니다. 감사 기록과 텔레메트리는 별도로 보관해, 보관소 장애가 수신까지 막지 않도록 구성했습니다.",
           "scope": [
-            "CCC · 인증서 기반 접속 승인·세션·감사 기록",
-            "TCC · 스냅샷 검증·최신 상태 저장·ACK",
-            "AMC · 비동기 보관·중복 처리·용량 및 미전달량 감시"
+            "CCC (Cluster Control Center) · 인증서 기반 접속 승인, 세션 관리, 감사 기록",
+            "TCC (Telemetry Control Center) · 스냅샷 검증, 노드별 최신 상태 저장, 수신 응답(ACK)",
+            "AMC (Archive Management Center) · 비동기 보관, 중복 처리, 용량과 미전달량 감시"
           ]
         }
       ],
