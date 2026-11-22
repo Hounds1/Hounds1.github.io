@@ -3,7 +3,11 @@
 
   const mounted = new WeakMap();
   const speed = 4;
-  const datasets = { cpu: 'assets/data/bullseye-cpu-replay.json', memory: 'assets/data/bullseye-memory-replay.json' };
+  const datasets = {
+    cpu: 'assets/data/bullseye-cpu-replay.json',
+    memory: 'assets/data/bullseye-memory-replay.json',
+    io: 'assets/data/bullseye-io-replay.json'
+  };
   const escape = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
   const finite = value => typeof value === 'number' && Number.isFinite(value);
   const percent = value => finite(value) ? value.toFixed(2) : '—';
@@ -15,16 +19,20 @@
   const evidenceValue = (transition, name) => transition?.evidence?.find(item => item.metric === name)?.value;
   const usesGradualWorkload = capture => capture.workloadProfile === 'gradual-duty-cycle';
   const isMemory = capture => capture.workloadProfile === 'memory-cgroup-pressure';
-  const resourceName = capture => isMemory(capture) ? '메모리' : 'CPU';
-  const resourceKey = capture => isMemory(capture) ? 'HOST_MEMORY' : 'HOST_CPU';
-  const sampleUsage = (sample, capture) => sample?.[isMemory(capture) ? 'memoryUsagePct' : 'cpuUsagePct'];
+  const isIo = capture => capture.workloadProfile === 'io-psi-pressure';
+  const resourceName = capture => isIo(capture) ? 'I/O' : isMemory(capture) ? '메모리' : 'CPU';
+  const resourceKey = capture => isIo(capture) ? 'DISK_IO' : isMemory(capture) ? 'HOST_MEMORY' : 'HOST_CPU';
+  const metricLabel = capture => isIo(capture) ? 'I/O PSI some (avg10)' : `${resourceName(capture)} 사용률`;
+  const sampleValue = (sample, capture) => sample?.[isIo(capture) ? 'ioPsiSomeAvg10Pct' : isMemory(capture) ? 'memoryUsagePct' : 'cpuUsagePct'];
+  const ioPhaseLabels = { baseline: '평시 I/O', 'ramp-up': '쓰기 부하 시작', 'high-load': '쓰기 부하 증가', 'ramp-down': '쓰기 부하 완화', recovery: '부하 해제·복귀 확인' };
   const phaseLabel = (label, capture) => (isMemory(capture)
     ? { baseline: '평시 메모리', 'ramp-up': '메모리 증가', 'memory-pressure': '회수 지연', 'high-hold': '원인 재평가', 'ramp-down': '메모리 해제', 'memory-release': '메모리 해제', recovery: '평시 수준·복구 확인' }
+    : isIo(capture) ? ioPhaseLabels
     : usesGradualWorkload(capture)
     ? { baseline: '평시 부하', 'ramp-up': '부하 증가', 'elevated-load': '압력 지속', 'high-load': '압력 심화', 'critical-load': '포화 접근', 'ramp-down': '부하 완화', recovery: '평시 수준·복구 확인' }
     : { baseline: '대기', 'one-cpu-worker': 'CPU 부하 ×1', 'two-cpu-workers': 'CPU 부하 ×2', 'saturated-cpu': 'CPU 포화 부하', recovery: '부하 해제·회복' })[label] || label;
   const usesDefaultProfile = capture => capture.configProfile === 'isolated-vm-defaults';
-  const cpuScope = capture => usesDefaultProfile(capture)
+  const measurementScope = capture => usesDefaultProfile(capture) || isIo(capture)
     ? `${capture.logicalCpus} vCPU Linux 게스트 전체`
     : `${capture.logicalCpus} 논리 CPU Linux VM 전체`;
 
@@ -33,7 +41,7 @@
     return `<section class="project-log-demo" data-log-demo="20" aria-labelledby="log-demo-title">
       <header class="log-demo-heading"><div><span class="log-demo-indicator" aria-hidden="true"></span><h3 id="log-demo-title">Core 진단 기록 재생</h3></div><span data-replay-environment>실측 데이터 재생</span></header>
       <div class="replay-archive-label"><div><strong>실측 아카이브</strong><span data-replay-capture-label>수집 버전 확인 중</span></div><p>수집 당시의 지표·점수·신뢰도를 그대로 재생합니다.</p></div>
-      <div class="replay-scenarios" role="group" aria-label="실측 시나리오 선택"><button type="button" data-replay-scenario="cpu" aria-pressed="true">CPU 부하·복구</button><button type="button" data-replay-scenario="memory" aria-pressed="false">메모리 원인 추적</button></div>
+      <div class="replay-scenarios" role="group" aria-label="실측 시나리오 선택"><button type="button" data-replay-scenario="cpu" aria-pressed="true">CPU 부하·복구</button><button type="button" data-replay-scenario="memory" aria-pressed="false">메모리 원인 추적</button><button type="button" data-replay-scenario="io" aria-pressed="false">I/O 부하·복구</button></div>
       <div class="replay-loading" data-replay-loading>실측 기록을 불러오는 중입니다.</div>
       <div class="replay-error" data-replay-error hidden><p>실측 기록을 불러오지 못했습니다. 연결 상태를 확인하고 다시 시도해주세요.</p><button type="button" class="replay-retry" data-replay-action="retry">다시 불러오기</button></div>
       <div class="replay-body" data-replay-body hidden>
@@ -42,7 +50,7 @@
           <div class="replay-stat replay-diagnostic"><span class="replay-kicker">기록된 Bullseye 진단 상태</span><strong class="replay-severity" data-replay-severity data-severity="WAITING">수집 대기</strong><span class="replay-stat-note" data-replay-state-note>첫 상태 파일 대기</span><span class="replay-recovery-note" data-replay-recovery-note hidden></span></div>
         </div>
         <div class="replay-heartbeat" data-replay-heartbeat><span class="replay-freshness" data-replay-freshness>관측 대기</span><span data-replay-evaluation></span><span data-replay-snapshot-count></span></div>
-        <figure class="replay-chart"><figcaption><span><span data-replay-chart-name>CPU 사용률</span> <small>별도 /proc 계측</small></span><span data-replay-chart-caption></span></figcaption><div data-replay-chart></div></figure>
+        <figure class="replay-chart"><figcaption><span><span data-replay-chart-name>CPU 사용률</span> <small data-replay-chart-source>별도 /proc 계측</small></span><span data-replay-chart-caption></span></figcaption><div data-replay-chart></div></figure>
         <div class="replay-phase-track" data-replay-phases role="group" aria-label="부하 테스트 단계 선택"></div>
         <div class="replay-controls"><button type="button" class="replay-toggle" data-replay-action="toggle">일시정지</button><button type="button" class="replay-restart" data-replay-action="restart">다시 재생 <span aria-hidden="true">↺</span></button><span class="replay-speed" data-replay-speed>4배속 재생</span></div>
         <div class="replay-scrubber"><input type="range" data-replay-range min="0" max="1" step="1" value="0" aria-label="실측 기록 재생 위치"><output class="replay-clock" data-replay-clock>00:00 / 00:00</output></div>
@@ -77,8 +85,12 @@
       if (!finite(snapshot.evaluatedAtMs) || !['INITIALIZING', 'FRESH', 'STALE'].includes(snapshot.observationStatus)
         || !snapshot.observations || !['NORMAL', 'ELEVATED', 'HIGH', 'CRITICAL'].includes(snapshot.severity)) throw new Error('Invalid evaluation snapshot');
     }
-    for (const sample of data.metrics) {
-      if (sample.cpuUsagePct !== null && (!finite(sample.cpuUsagePct) || sample.cpuUsagePct < 0 || sample.cpuUsagePct > 100)) throw new Error('Invalid CPU sample');
+    const validPercentage = value => value === null || (finite(value) && value >= 0 && value <= 100);
+    if (isIo(data.capture)) {
+      if (!data.metrics.some(sample => finite(sample.ioPsiSomeAvg10Pct))) throw new Error('Missing I/O PSI sample');
+      if (data.metrics.some(sample => !validPercentage(sample.ioPsiSomeAvg10Pct) || !validPercentage(sample.ioPsiFullAvg10Pct ?? null))) throw new Error('Invalid I/O PSI sample');
+    } else if (data.metrics.some(sample => !validPercentage(sample.cpuUsagePct))) {
+      throw new Error('Invalid CPU sample');
     }
     for (const entry of data.transitions) {
       if (!['NORMAL', 'ELEVATED', 'HIGH', 'CRITICAL'].includes(entry.severity) || !Array.isArray(entry.evidence)) throw new Error('Invalid diagnostic state');
@@ -102,18 +114,24 @@
 
   function chartMarkup(data) {
     const left = 40, right = 700, top = 15, bottom = 145;
-    const peak = Math.max(...data.metrics.map(sample => sampleUsage(sample, data.capture) || 0));
-    const ceiling = usesDefaultProfile(data.capture) ? 100 : Math.max(10, Math.ceil(peak / 5) * 5);
+    const io = isIo(data.capture);
+    const peak = Math.max(...data.metrics.map(sample => sampleValue(sample, data.capture) || 0));
+    const peakFull = io ? Math.max(...data.metrics.map(sample => sample.ioPsiFullAvg10Pct || 0)) : 0;
+    const ceiling = usesDefaultProfile(data.capture) && !io ? 100 : Math.max(10, Math.ceil(Math.max(peak, peakFull) / 5) * 5);
     const x = at => left + at / data.capture.durationMs * (right - left);
     const y = value => bottom - value / ceiling * (bottom - top);
-    let penDown = false;
-    const path = data.metrics.map(sample => {
-      const value = sampleUsage(sample, data.capture);
-      if (!finite(value)) { penDown = false; return ''; }
-      const point = `${penDown ? 'L' : 'M'}${x(sample.atMs).toFixed(2)},${y(value).toFixed(2)}`;
-      penDown = true;
-      return point;
-    }).join(' ');
+    const linePath = readValue => {
+      let penDown = false;
+      return data.metrics.map(sample => {
+        const value = readValue(sample);
+        if (!finite(value)) { penDown = false; return ''; }
+        const point = `${penDown ? 'L' : 'M'}${x(sample.atMs).toFixed(2)},${y(value).toFixed(2)}`;
+        penDown = true;
+        return point;
+      }).join(' ');
+    };
+    const path = linePath(sample => sampleValue(sample, data.capture));
+    const fullPath = io && data.metrics.some(sample => finite(sample.ioPsiFullAvg10Pct)) ? linePath(sample => sample.ioPsiFullAvg10Pct) : '';
     const grid = [0, ceiling / 2, ceiling].map(value => `<line class="replay-gridline" x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}"/><text class="replay-axis-label" x="31" y="${y(value) + 3}" text-anchor="end">${value}%</text>`).join('');
     const axis = [0, .25, .5, .75, 1].map(fraction => `<text class="replay-axis-label" x="${x(fraction * data.capture.durationMs)}" y="169" text-anchor="${fraction === 0 ? 'start' : fraction === 1 ? 'end' : 'middle'}">${clock(fraction * data.capture.durationMs)}</text>`).join('');
     const threshold = data.capture.thresholds?.cpuElevatedPercent;
@@ -135,11 +153,28 @@
     ].filter(entry => finite(entry.percent) && entry.percent >= 0 && entry.percent <= ceiling) : [];
     const gradualLines = thresholdEntries.map(entry => `<line class="replay-threshold replay-threshold-${entry.severity.toLowerCase()}" x1="${left}" x2="${right}" y1="${y(entry.percent)}" y2="${y(entry.percent)}"/>`).join('');
     const legend = gradual ? `<ul class="replay-threshold-legend" aria-label="수집 당시 기본 사용률 기준">${thresholdEntries.map(entry => `<li data-severity="${entry.severity}"><span aria-hidden="true"></span>${entry.severity} ${entry.percent}% · ${finite(entry.seconds) ? `${entry.seconds}초` : '—'}</li>`).join('')}</ul>` : '';
+    const ioLegend = io ? `<ul class="replay-io-legend" aria-label="I/O 압력 지표"><li><span aria-hidden="true"></span>some · 하나 이상의 작업이 I/O를 기다린 시간</li>${fullPath ? '<li class="replay-io-full-legend"><span aria-hidden="true"></span>full · 유휴 상태가 아닌 모든 작업이 I/O로 멈춘 시간</li>' : ''}</ul>` : '';
+    const fullTraces = fullPath ? `<path class="replay-line-background replay-line-full" d="${fullPath}"/><path class="replay-line-played replay-line-full" clip-path="url(#bullseye-replay-progress)" d="${fullPath}"/>` : '';
+    const chartDescription = `${measurementScope(data.capture)}에서 계측한 ${metricLabel(data.capture)}. 최대 ${peak.toFixed(2)}퍼센트.${fullPath ? ` PSI full 최대 ${peakFull.toFixed(2)}퍼센트.` : ''} 밝은 선은 현재 재생 위치까지의 기록입니다.`;
     const shades = data.phases.map((phase, index) => `<rect class="replay-phase-shade" x="${x(phase.atMs)}" y="${top}" width="${Math.max(0, x(data.phases[index + 1]?.atMs ?? data.capture.durationMs) - x(phase.atMs))}" height="${bottom - top}" opacity="${index % 2 ? '.04' : '.015'}"/>`).join('');
     return {
       x, y,
-      html: `<svg class="replay-chart-svg" viewBox="0 0 720 180" role="img" aria-label="${escape(cpuScope(data.capture))}에서 계측한 ${resourceName(data.capture)} 사용률. 최대 ${peak.toFixed(2)}퍼센트. 밝은 선은 현재 재생 위치까지의 기록입니다."><defs><clipPath id="bullseye-replay-progress"><rect data-replay-clip x="${left}" y="0" width="0" height="180"/></clipPath></defs>${shades}${grid}${axis}${gradual ? gradualLines : thresholdLine + criticalLine}<path class="replay-line-background" d="${path}"/><path class="replay-line-played" clip-path="url(#bullseye-replay-progress)" d="${path}"/><line class="replay-cursor" data-replay-cursor x1="${left}" x2="${left}" y1="${top}" y2="${bottom}"/><circle class="replay-dot" data-replay-dot cx="${left}" cy="${bottom}" r="3.5" visibility="hidden"/></svg>${legend}`
+      html: `<svg class="replay-chart-svg" viewBox="0 0 720 180" role="img" aria-label="${escape(chartDescription)}"><defs><clipPath id="bullseye-replay-progress"><rect data-replay-clip x="${left}" y="0" width="0" height="180"/></clipPath></defs>${shades}${grid}${axis}${io ? '' : gradual ? gradualLines : thresholdLine + criticalLine}<path class="replay-line-background" d="${path}"/><path class="replay-line-played" clip-path="url(#bullseye-replay-progress)" d="${path}"/>${fullTraces}<line class="replay-cursor" data-replay-cursor x1="${left}" x2="${left}" y1="${top}" y2="${bottom}"/><circle class="replay-dot" data-replay-dot cx="${left}" cy="${bottom}" r="3.5" visibility="hidden"/></svg>${legend}${ioLegend}`
     };
+  }
+
+  function ioThresholdFacts(thresholds) {
+    const { ioElevatedPsiSomePercent: elevatedSome, ioElevatedDurationSeconds: elevatedDuration,
+      ioHighPsiSomePercent: highSome, ioHighPsiFullPercent: highFull, ioHighDurationSeconds: highDuration,
+      ioCriticalPsiFullPercent: criticalFull, ioCriticalDurationSeconds: criticalDuration,
+      ioRecoveryPsiSomePercent: recoverySome, ioRecoveryPsiFullPercent: recoveryFull,
+      ioRecoveryDurationSeconds: recoveryDuration } = thresholds;
+    const facts = [];
+    if ([elevatedSome, elevatedDuration].every(finite)) facts.push(['ELEVATED', `PSI some ${elevatedSome}% 이상을 ${elevatedDuration}초 유지`]);
+    if ([highSome, highFull, highDuration].every(finite)) facts.push(['HIGH', `PSI some ${highSome}% 이상 또는 full ${highFull}% 이상을 ${highDuration}초 유지`]);
+    if ([criticalFull, criticalDuration].every(finite)) facts.push(['CRITICAL', `PSI full ${criticalFull}% 이상을 ${criticalDuration}초 유지`]);
+    if ([recoverySome, recoveryFull, recoveryDuration].every(finite)) facts.push(['NORMAL 복귀', `PSI some ${recoverySome}% 이하와 full ${recoveryFull}% 이하를 ${recoveryDuration}초 유지`]);
+    return facts;
   }
 
   function mount(container, projectId) {
@@ -230,8 +265,9 @@
       let sampleIndex = -1;
       for (let index = 0; index < data.metrics.length && data.metrics[index].atMs <= position; index++) sampleIndex = index;
       const sample = data.metrics[sampleIndex];
+      const io = isIo(data.capture);
       if (!data.snapshots && sampleIndex !== lastSampleIndex) {
-        cpu.textContent = percent(sampleUsage(sample, data.capture));
+        cpu.textContent = percent(sampleValue(sample, data.capture));
         sampleNote.textContent = sample ? `계측 시점 ${clock(sample.atMs, true)}` : '첫 계측 대기';
         lastSampleIndex = sampleIndex;
       }
@@ -241,14 +277,15 @@
         const snapshot = data.snapshots?.[snapshotIndex];
         const key = resourceKey(data.capture);
         const observation = snapshot?.observations?.[key];
-        const currentValue = observation?.metrics?.find(item => item.metric === `${key}_USAGE`)?.value;
-        const currentPsi = observation?.metrics?.find(item => item.metric === `${key}_PSI_SOME_AVG10`)?.value;
+        const currentValue = observation?.metrics?.find(item => item.metric === (io ? 'HOST_IO_PSI_SOME_AVG10' : `${key}_USAGE`))?.value;
+        const accompanyingMetric = observation?.metrics?.find(item => item.metric === (io ? 'HOST_IO_PSI_FULL_AVG10' : `${key}_PSI_SOME_AVG10`))?.value;
         if (data.snapshots) {
           cpu.textContent = percent(currentValue);
-          sampleNote.textContent = snapshot ? `현재 관측 · PSI some ${percent(currentPsi)}%` : '첫 평가 스냅샷 대기';
+          sampleNote.textContent = snapshot ? `현재 관측 · PSI ${io ? 'full (avg10)' : 'some'} ${finite(accompanyingMetric) ? `${percent(accompanyingMetric)}%` : '미계측'}` : '첫 평가 스냅샷 대기';
           const freshness = find('[data-replay-freshness]');
-          freshness.textContent = snapshot?.observationStatus || '관측 대기';
-          freshness.dataset.freshness = snapshot?.observationStatus || 'WAITING';
+          const observationStatus = (io ? observation?.status : null) || snapshot?.observationStatus;
+          freshness.textContent = observationStatus || '관측 대기';
+          freshness.dataset.freshness = observationStatus || 'WAITING';
           find('[data-replay-evaluation]').textContent = snapshot ? `평가 ${snapshot.evaluatedAtMs < 0 ? '기록 시작 전' : clock(snapshot.evaluatedAtMs, true)} · v${snapshot.version}` : '';
           find('[data-replay-snapshot-count]').textContent = `${snapshotIndex + 1} / ${data.snapshots.length} 스냅샷`;
         }
@@ -272,7 +309,7 @@
       let phaseIndex = -1;
       data.phases.forEach((phase, index) => { if (phase.atMs <= position) phaseIndex = index; });
       const currentSeverity = data.transitions[stateIndex]?.severity;
-      const recoveryPending = (usesGradualWorkload(data.capture) || isMemory(data.capture)) && ['ramp-down', 'memory-release', 'recovery'].includes(data.phases[phaseIndex]?.label)
+      const recoveryPending = (io || usesGradualWorkload(data.capture) || isMemory(data.capture)) && ['ramp-down', 'memory-release', 'io-release', 'recovery'].includes(data.phases[phaseIndex]?.label)
         && currentSeverity && currentSeverity !== 'NORMAL';
       recoveryNote.hidden = !recoveryPending;
       recoveryNote.textContent = recoveryPending ? `부하 감소 · 정상화 확인 중. 복구 조건을 충족할 때까지 ${currentSeverity} 상태를 유지합니다.` : '';
@@ -290,10 +327,11 @@
       cursor.setAttribute('x1', String(chart.x(position)));
       cursor.setAttribute('x2', String(chart.x(position)));
       const dot = find('[data-replay-dot]');
-      dot.setAttribute('visibility', finite(sampleUsage(sample, data.capture)) ? 'visible' : 'hidden');
-      if (finite(sampleUsage(sample, data.capture))) {
+      const value = sampleValue(sample, data.capture);
+      dot.setAttribute('visibility', finite(value) ? 'visible' : 'hidden');
+      if (finite(value)) {
         dot.setAttribute('cx', String(chart.x(sample.atMs)));
-        dot.setAttribute('cy', String(chart.y(sampleUsage(sample, data.capture))));
+        dot.setAttribute('cy', String(chart.y(value)));
       }
       paintLogs(followLogs);
       if (announce) status.textContent = `${clock(position)} 위치. ${data.transitions[stateIndex]?.severity || '첫 상태 파일 수집 대기'}.${recoveryPending ? ' 부하 감소, 정상화 확인 중.' : ''}`;
@@ -357,33 +395,39 @@
       const defaultProfile = usesDefaultProfile(capture);
       const gradual = usesGradualWorkload(capture);
       const memory = isMemory(capture);
+      const io = isIo(capture);
       const label = resourceName(capture);
       const capturedAt = new Date(capture.startedAt);
       const captureDate = Number.isFinite(capturedAt.getTime())
         ? new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(capturedAt)
         : '수집일 미기록';
       find('[data-replay-capture-label]').textContent = `${captureDate} KST · Core ${capture.agentRevision?.slice(0, 7) || '버전 미기록'}`;
-      find('[data-replay-environment]').textContent = defaultProfile
+      find('[data-replay-environment]').textContent = defaultProfile || io
         ? `실측 데이터 재생 · 격리 Linux VM ${capture.logicalCpus} vCPU`
         : `실측 데이터 재생 · ${capture.environment}`;
-      find('[data-replay-cpu-label]').textContent = `${label} 사용률 · ${data.snapshots ? 'Bullseye 현재 관측' : cpuScope(capture)}`;
-      find('[data-replay-chart-name]').textContent = `${label} 사용률`;
+      find('[data-replay-cpu-label]').textContent = `${metricLabel(capture)} · ${data.snapshots ? 'Bullseye 현재 관측' : measurementScope(capture)}`;
+      find('[data-replay-chart-name]').textContent = io ? 'I/O 대기 비율 (PSI avg10)' : metricLabel(capture);
+      find('[data-replay-chart-source]').textContent = io ? '/proc/pressure/io 별도 계측' : '별도 /proc 계측';
       find('[data-replay-heartbeat]').hidden = !data.snapshots;
-      find('[data-replay-source-scope]').textContent = `${label} 곡선은 ${cpuScope(capture)}의 /proc를 약 1초 간격으로 별도 계측한 기록입니다. 위 현재 관측값은 Bullseye의 5초 간격 스냅샷에서 가져옵니다.${memory ? ' 원인 작업명은 memory-worker로 익명화했습니다.' : ''}`;
+      find('[data-replay-source-scope]').textContent = io
+        ? `그래프는 ${measurementScope(capture)}의 /proc/pressure/io에서 읽은 실측값입니다. PSI는 작업이 I/O를 기다린 시간의 비율이며, 상태와 최신 관측값은 Core의 DISK_IO 기록을 보여줍니다.`
+        : `${label} 곡선은 ${measurementScope(capture)}의 /proc를 약 1초 간격으로 별도 계측한 기록입니다. 위 현재 관측값은 Bullseye의 5초 간격 스냅샷에서 가져옵니다.${memory ? ' 원인 작업명은 memory-worker로 익명화했습니다.' : ''}`;
       chart = chartMarkup(data);
       find('[data-replay-chart]').innerHTML = chart.html;
       find('[data-replay-chart-caption]').textContent = `${(capture.durationMs / 1000).toFixed(1)}초 기록 · ${data.metrics.length}개 샘플`;
       phases.classList.toggle('is-gradual', gradual);
       phases.classList.toggle('is-memory', memory);
+      phases.classList.toggle('is-io', io);
       phases.innerHTML = data.phases.map((phase, index) => `<button type="button" class="replay-phase" data-replay-phase="${index}" aria-pressed="false"><span>${clock(phase.atMs)}</span><strong>${escape(phaseLabel(phase.label, capture))}</strong></button>`).join('');
       events.innerHTML = data.transitions.map((transition, index) => {
         const previous = data.transitions[index - 1];
         const title = previous ? previous.severity === transition.severity ? `${transition.severity} · 원인 판단 변경` : `${previous.severity} → ${transition.severity}` : `초기 상태 · ${transition.severity}`;
         const usage = evidenceValue(transition, 'usage');
         const psi = evidenceValue(transition, 'psi.some.avg10');
+        const full = evidenceValue(transition, 'psi.full.avg10');
         const duration = evidenceValue(transition, 'duration');
         const trend = evidenceValue(transition, 'trend');
-        const evidence = [finite(usage) ? `${label} ${percent(usage)}%` : '', finite(psi) ? `PSI some ${percent(psi)}%` : '', finite(trend) ? `${memory ? 'PSI 상승' : '상승'} ${trend >= 0 ? '+' : ''}${trend.toFixed(2)}pp/${duration}초` : finite(duration) ? `지속 ${duration}초` : ''].filter(Boolean).join(' · ') || '초기 상태 파일';
+        const evidence = [finite(usage) ? `${label} ${percent(usage)}%` : '', finite(psi) ? `PSI some ${percent(psi)}%` : '', io && finite(full) ? `PSI full ${percent(full)}%` : '', finite(trend) ? `${memory ? 'PSI 상승' : '상승'} ${trend >= 0 ? '+' : ''}${trend.toFixed(2)}pp/${duration}초` : finite(duration) ? `지속 ${duration}초` : ''].filter(Boolean).join(' · ') || '초기 상태 파일';
         return `<li data-severity="${escape(transition.severity)}"><button type="button" class="replay-event" data-replay-event="${index}" aria-current="false"><time>${clock(transition.atMs, true)}</time><span class="replay-event-copy"><strong>${escape(title)}</strong><small>${escape(evidence)}</small></span><span class="replay-event-version">v${escape(transition.version)}</span></button></li>`;
       }).join('');
       logList.replaceChildren();
@@ -422,23 +466,42 @@
       const corroboration = thresholds.cpuPsiCorroborationPercent;
       const observations = [];
       if (recovered) observations.push(gradual ? '부하 증가에 따른 진단 상승과, 부하를 평시 수준으로 낮춘 뒤 NORMAL 복귀가 실제 상태 파일에 기록됐습니다.' : '진단 상승과 부하 해제 후 NORMAL 복귀가 실제 상태 파일에 기록됐습니다.');
-      if (gradual || memory) observations.push('하강 구간에서는 중간 등급으로 낮추지 않고 복구 조건을 충족할 때까지 마지막 등급을 유지합니다.');
+      if (io || gradual || memory) observations.push('하강 구간에서는 중간 등급으로 낮추지 않고 복구 조건을 충족할 때까지 마지막 등급을 유지합니다.');
+      if (io && data.transitions[pressureIndex]?.severity === 'HIGH') {
+        const firstPressure = data.transitions[pressureIndex];
+        const some = evidenceValue(firstPressure, 'psi.some.avg10');
+        const full = evidenceValue(firstPressure, 'psi.full.avg10');
+        if (some < thresholds.ioElevatedPsiSomePercent && full >= thresholds.ioHighPsiFullPercent) {
+          observations.push('이 기록에서는 PSI some이 ELEVATED 기준에 닿기 전에 PSI full이 HIGH의 지속 조건을 먼저 충족했습니다.');
+        }
+      }
+      if (io && data.snapshots?.some(snapshot => snapshot.workload?.status === 'IDENTIFIED')) observations.push('로그의 원인 후보는 cgroup별 장치 활동을 비교한 결과이며 신뢰도는 LOW입니다.');
       if (memory && !data.transitions.some(transition => transition.severity === 'ELEVATED')) observations.push('이 메모리 실험에서는 cgroup 제한 후 PSI가 빠르게 높아져 ELEVATED 전환 없이 HIGH에 진입했습니다.');
       if (memory) observations.push('원인 신뢰도가 바뀔 때도 이전 진단 근거가 로그에 남을 수 있습니다. 현재 메모리·PSI 값은 위 현재 관측을 기준으로 읽습니다.');
       if (data.snapshots) observations.push(`진단 전환 ${data.transitions.length}건과 별도로 평가 스냅샷 ${data.snapshots.length}건이 갱신됐습니다. FRESH는 기록 당시의 관측 상태입니다.`);
-      if (!memory && noHigh && psiSamples.length && finite(corroboration) && Math.max(...psiSamples) < corroboration) {
+      if (!io && !memory && noHigh && psiSamples.length && finite(corroboration) && Math.max(...psiSamples) < corroboration) {
         observations.push(`HIGH 전환은 관측되지 않았고, CPU PSI는 보강 기준(${corroboration}%)보다 낮았습니다.`);
       }
       find('[data-replay-observation]').textContent = observations.join(' ') || '표시된 상태 전환과 판단 근거는 이 실행에서 실제로 기록된 값입니다.';
-      find('[data-replay-source-version]').textContent = `${defaultProfile ? '기본 진단 임계값을 변경하지 않고 수집했습니다.' : '수집용으로 변경한 진단 임계값을 사용했습니다.'} ${capture.agentWorkingTreeDirty ? '에이전트는 미커밋 변경을 포함한 로컬 개발 버전입니다.' : `에이전트는 ${capture.agentRevision.slice(0, 7)} 커밋으로 실행했습니다.`}`;
-      find('[data-replay-provenance-note]').textContent = defaultProfile
+      const configDescription = capture.configDescription || (defaultProfile ? '기본 진단 임계값을 변경하지 않고 수집했습니다.' : '수집용으로 변경한 진단 임계값을 사용했습니다.');
+      const agentRevision = capture.agentRevision?.slice(0, 7);
+      find('[data-replay-source-version]').textContent = `${configDescription} ${capture.agentWorkingTreeDirty ? '에이전트는 미커밋 변경을 포함한 로컬 개발 버전입니다.' : agentRevision ? `에이전트는 ${agentRevision} 커밋으로 실행했습니다.` : ''}`;
+      find('[data-replay-provenance-note]').textContent = io
+        ? '격리 Linux 게스트의 가상 디스크에 부하를 준 기록입니다. 기록된 PSI는 이 실험 환경의 I/O 대기 시간 비율을 나타냅니다.'
+        : defaultProfile
         ? `${memory ? '게스트 안 메모리 작업과 cgroup 제한으로 실제 메모리 압력을 관측한 실험입니다. ' : gradual ? 'CPU 작업의 실행 비율을 조절한 부하 시나리오입니다. 실제 서비스의 HTTP 요청량을 재현한 것은 아닙니다. ' : ''}QEMU TCG로 격리한 Linux 게스트의 부하·복구 실험이며, 물리 서버의 성능·용량 벤치마크는 아닙니다.`
         : '수집용 임계값을 사용한 기록이며 운영 환경의 성능·용량 벤치마크는 아닙니다.';
       const limits = capture.limits || {};
       const loadRange = defaultProfile
         ? `게스트 안에서 최대 ${limits.workerCountMax ?? '—'}개 작업 · VM 메모리 ${limits.vmMemoryMb ?? '—'} MiB`
         : `최대 ${limits.workerCountMax ?? '—'}개 worker · 각각 ${limits.workerCpusEach ?? '—'} CPU / ${limits.workerMemoryMbEach ?? '—'} MiB 제한`;
-      const facts = [
+      const facts = io ? [
+        ['환경', capture.environment],
+        ['부하 범위', capture.workload || 'Linux 게스트 내 가상 디스크 쓰기'],
+        ['계측과 진단', `그래프는 /proc/pressure/io에서 별도 계측 · 에이전트는 ${thresholds.samplingIntervalSeconds ?? '—'}초 간격으로 수집·판단`],
+        ...ioThresholdFacts(thresholds),
+        ['소스 기준', `${agentRevision || '미기록'}${capture.agentWorkingTreeDirty ? ' · 미커밋 변경 포함' : ''}`],
+      ] : [
         ['환경', `${capture.environment} · ${capture.logicalCpus} ${defaultProfile ? 'vCPU' : '논리 CPU'}`],
         ['부하 범위', loadRange],
         ['계측과 진단', `그래프는 약 1초 간격의 별도 /proc 계측 · 에이전트는 ${thresholds.samplingIntervalSeconds ?? '—'}초 간격으로 수집·판단`],

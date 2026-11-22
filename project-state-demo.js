@@ -47,7 +47,7 @@
       resources: {
         HOST_CPU: { severity: evaluation < 2 ? 'NORMAL' : 'ELEVATED', since: evaluation < 2 ? epoch - 30000 : evaluatedAt },
         HOST_MEMORY: { severity: 'HIGH', since: epoch },
-        HOST_IO: { severity: 'NORMAL', since: epoch - 30000 }
+        DISK_IO: { severity: 'NORMAL', since: epoch - 30000 }
       },
       observationStatus: 'FRESH',
       observations: {

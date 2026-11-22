@@ -35,7 +35,7 @@
 .replay-error p { margin: 0 0 13px; }
 .replay-error button { min-height: 44px; padding: 8px 14px; border: 1px solid #52687b; border-radius: 6px; background: #1e2b35; color: #e0e9ef; font-size: 12px; }
 .replay-body { padding: 23px 22px 19px; }
-.replay-scenarios { display: flex; gap: 6px; padding: 14px 22px 0; }
+.replay-scenarios { display: flex; flex-wrap: wrap; gap: 6px; padding: 14px 22px 0; }
 .replay-scenarios button { min-height: 42px; padding: 9px 14px; border: 1px solid #344853; border-radius: 5px; background: #111b22; color: #99afbc; font-size: 12px; }
 .replay-scenarios button[aria-pressed="true"] { color: #d0e5d9; border-color: #6a8d79; background: #a4c7b510; }
 .replay-heartbeat { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: -6px 0 18px; color: #9aafbb; font-family: var(--replay-mono); font-size: 10px; line-height: 1.6; }
@@ -110,12 +110,20 @@
 .replay-line-background, .replay-line-played { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .replay-line-background { stroke: #42594f; stroke-width: 1.5; opacity: .65; }
 .replay-line-played { stroke: #a4c7b5; stroke-width: 2; }
+.replay-line-full { stroke-dasharray: 4 4; }
+.replay-line-background.replay-line-full { stroke: #456784; }
+.replay-line-played.replay-line-full { stroke: #9dbedf; }
+.replay-io-legend { display: flex; flex-wrap: wrap; gap: 5px 17px; margin: 7px 0 10px; padding: 0; list-style: none; }
+.replay-io-legend li { display: flex; align-items: center; gap: 7px; color: #b4c8c3; font-size: 11px; line-height: 1.6; }
+.replay-io-legend li > span { flex: 0 0 15px; border-top: 2px solid #a4c7b5; }
+.replay-io-legend li.replay-io-full-legend > span { border-top: 2px dashed #9dbedf; }
 .replay-cursor { stroke: #b7c9be; stroke-width: 1; stroke-dasharray: 3 4; opacity: .7; vector-effect: non-scaling-stroke; }
 .replay-dot { fill: #d9eadd; stroke: #0c1318; stroke-width: 2; vector-effect: non-scaling-stroke; }
 .replay-phase-shade { fill: #b49a5a; opacity: .055; }
 .replay-phase-track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 10px; }
 .replay-phase-track.is-gradual { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .replay-phase-track.is-memory { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.replay-phase-track.is-io { grid-template-columns: repeat(auto-fit, minmax(min(100%, 110px), 1fr)); }
 .replay-phase { display: flex; flex-direction: column; gap: 5px; min-width: 0; min-height: 63px; padding: 10px 12px; border: 1px solid #2e3e49; border-radius: 5px; background: #141e25; color: #a9bbc8; text-align: left; transition: border-color 150ms ease, background-color 150ms ease; }
 .replay-phase > span { color: #94a7b5; font-family: var(--replay-mono); font-size: 10px; line-height: 1.4; }
 .replay-phase > strong { color: inherit; font-size: 11px; font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; }
@@ -231,6 +239,7 @@
   .replay-phase-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .replay-phase-track.is-gradual { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .replay-phase-track.is-memory { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .replay-phase-track.is-io { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .replay-phase { gap: 3px; min-height: 58px; padding: 9px 10px; }
   .replay-controls { gap: 7px; margin-top: 17px; }
   .replay-controls button { padding-inline: 11px; font-size: 11px; }
